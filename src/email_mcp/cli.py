@@ -5,14 +5,14 @@ import json
 import typer
 
 from .db.migrate import is_initialized, migrate
-from .main import build_server, sync_mailbox_across_accounts
-from .mcp_tools.status_tools import register_status_tools
+from .main import sync_mailbox_across_accounts
+from .mcp_tools.status_tools import sync_status_impl, set_sync_enabled_impl
 from .registry import list_registered_accounts, register_accounts_from_env
 from .settings import Settings
-from .mcp_tools.search_tools import register_search_tools
-from .mcp_tools.label_tools import register_label_tools
-from .mcp_tools.rules_tools import register_rules_tools
-from .mcp_tools.maintenance_tools import register_maintenance_tools
+from .mcp_tools.search_tools import search_messages_impl
+from .mcp_tools.label_tools import create_label_impl
+from .mcp_tools.rules_tools import create_rule_impl
+from .mcp_tools.maintenance_tools import purge_messages_impl
 
 
 app = typer.Typer(add_completion=False)
@@ -69,46 +69,37 @@ def sync(
 
 @app.command("status")
 def status(account: str | None = None) -> None:
-    server = build_server()
-    register_status_tools(server)
-    status_tool = server._tool_manager.get_tool("sync_status")  # type: ignore[attr-defined]
-    result = status_tool.call(account_name=account)  # type: ignore[call-arg]
+    result = sync_status_impl(account)
     print(json.dumps(result, indent=2))
 
 
 @app.command("search")
 def search(query: str, account: str | None = None) -> None:
-    server = build_server()
-    register_search_tools(server)
-    tool = server._tool_manager.get_tool("search_messages")  # type: ignore[attr-defined]
-    result = tool.call(query=query, account_name=account)  # type: ignore[call-arg]
+    result = search_messages_impl(query, account_name=account)
     print(json.dumps(result, indent=2))
 
 
 @app.command("label-create")
 def label_create(name: str, account: str | None = None) -> None:
-    server = build_server()
-    register_label_tools(server)
-    tool = server._tool_manager.get_tool("create_label")  # type: ignore[attr-defined]
-    result = tool.call(name=name, account_name=account)  # type: ignore[call-arg]
+    result = create_label_impl(name, account_name=account)
     print(result)
 
 
 @app.command("rules-create")
 def rules_create(name: str, field: str, pattern: str, label: str, account: str | None = None) -> None:
-    server = build_server()
-    register_rules_tools(server)
-    tool = server._tool_manager.get_tool("create_rule")  # type: ignore[attr-defined]
-    result = tool.call(name=name, field=field, pattern=pattern, label=label, account_name=account)  # type: ignore[call-arg]
+    result = create_rule_impl(name, field, pattern, label, account_name=account)
     print(result)
 
 
 @app.command("purge")
 def purge(account: str | None = None, label: str | None = None, older_than_days: int | None = None) -> None:
-    server = build_server()
-    register_maintenance_tools(server)
-    tool = server._tool_manager.get_tool("purge_messages")  # type: ignore[attr-defined]
-    result = tool.call(account_name=account, label=label, older_than_days=older_than_days)  # type: ignore[call-arg]
+    result = purge_messages_impl(account_name=account, label=label, older_than_days=older_than_days)
+    print(result)
+
+
+@app.command("set-sync-enabled")
+def set_sync_enabled(enabled: bool, account: str | None = None) -> None:
+    result = set_sync_enabled_impl(enabled, account)
     print(result)
 
 

@@ -74,6 +74,17 @@ def purge_messages_internal(
     return count
 
 
+def purge_messages_impl(
+    account_name: str | None = None,
+    label: str | None = None,
+    older_than_days: int | None = None,
+) -> str:
+    settings = Settings()
+    count = purge_messages_internal(settings, account_name, label, older_than_days)
+    log_action("purge_messages", account_name, "ok", {"count": count})
+    return f"Deleted {count} messages."
+
+
 def register_maintenance_tools(app) -> None:
     @app.tool()
     def purge_messages(
@@ -81,7 +92,4 @@ def register_maintenance_tools(app) -> None:
         label: str | None = None,
         older_than_days: int | None = None,
     ) -> str:
-        settings = Settings()
-        count = purge_messages_internal(settings, account_name, label, older_than_days)
-        log_action("purge_messages", account_name, "ok", {"count": count})
-        return f"Deleted {count} messages."
+        return purge_messages_impl(account_name, label, older_than_days)
