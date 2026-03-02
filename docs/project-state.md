@@ -1,8 +1,8 @@
 # Project State
 
 ## Status
-- Phase: iteration 3 in progress
-- Current iteration: Iteration 3
+- Phase: iteration 5 complete
+- Current iteration: Iteration 6
 - Last updated: 2026-03-02
 
 ## Scope
@@ -21,10 +21,11 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 - Added optional resync cleanup to remove local messages missing on server.
 - Added integration tests for auth config and multi-account sync.
 - Added vector cleanup during purge/resync when vector search is enabled.
+- OAuth provider integration deferred to Iteration 6.
 
 ## Deliverables
 - Plan: `Plan.md`
-- Rollout iterations: `docs/rollout-iteration-1.md`, `docs/rollout-iteration-2.md`, `docs/rollout-iteration-3.md`, `docs/rollout-iteration-4.md`, `docs/rollout-iteration-5.md`
+- Rollout iterations: `docs/rollout-iteration-1.md`, `docs/rollout-iteration-2.md`, `docs/rollout-iteration-3.md`, `docs/rollout-iteration-4.md`, `docs/rollout-iteration-5.md`, `docs/rollout-iteration-6.md`
 - README: `README.md` (beta warning and quick start)
 - Engineering guide: `docs/engineering-guide.md`
 - Live IMAP smoke test: `docs/live-imap-smoke-test.md`
@@ -40,8 +41,4 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 - Define sync semantics (UID tracking, expunges, resync policies)
 - Define hybrid ranking strategy
 - Confirm embedding lifecycle (sync vs async)
-- Implement expunge detection and resync policies
-- Implement real OAuth provider integration
-- Add retention cleanup for vector store
-- Add integration tests for HTTP/auth and multi-account flows
-- Automate README test table regeneration in CI
+- Implement real OAuth provider integration (Iteration 6)
