@@ -124,9 +124,11 @@ def _sync_mailbox(
         mailbox_row = get_or_create_mailbox(session, account.id, mailbox)
         last_uid = mailbox_row.last_uid or 0
         max_uid = last_uid
+        # Option C: if since_date is provided, ignore UID filter to allow backfill.
+        since_uid = None if since_date else last_uid
         for message in imap.fetch_messages(
             mailbox,
-            since_uid=last_uid,
+            since_uid=since_uid,
             since_date=since_date,
             before_date=before_date,
         ):
