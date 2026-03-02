@@ -25,6 +25,7 @@
    - Iter 2: FTS search + vector search + hybrid query
    - Iter 3: Auth modes + multi-account + retention
 1. If tests are missing, add a TODO and create an issue.
+1. Include property-based tests for critical parsing/normalization code.
 
 ## Safety Check (PII)
 1. Before every commit, run a quick scan for secrets and personal data (email addresses, tokens, passwords).
