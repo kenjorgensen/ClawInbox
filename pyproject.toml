@@ -17,6 +17,8 @@ dependencies = [
   "pydantic-settings>=2.2.0",
   "keyring>=25.0.0",
   "html2text>=2024.2.26",
+  "beautifulsoup4>=4.12.3",
+  "charset-normalizer>=3.3.2",
 ]
 
 [project.optional-dependencies]
