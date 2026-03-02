@@ -35,6 +35,7 @@ vector = [
 email-mcp = "email_mcp.main:main"
 email-mcp-register = "email_mcp.cli:register_accounts"
 email-mcp-list = "email_mcp.cli:list_accounts"
+email-mcp-init = "email_mcp.cli:init_db"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

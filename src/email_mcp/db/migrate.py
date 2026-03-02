@@ -57,3 +57,12 @@ def migrate(db_path: Path) -> None:
     engine = get_engine(db_path)
     init_db(engine)
     _init_fts(engine)
+
+
+def is_initialized(db_path: Path) -> bool:
+    engine = get_engine(db_path)
+    with engine.connect() as conn:
+        result = conn.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='account';"
+        ).fetchone()
+        return result is not None
