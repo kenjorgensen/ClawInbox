@@ -35,6 +35,19 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. Optional date filtering: use `since_date` (required) and `before_date` (optional) in IMAP `DD-Mon-YYYY` format.
 1. Cross-account searches include an `account` field in results.
 
+## Account Registry
+1. Register accounts from env JSON by setting `EMAIL_MCP_ACCOUNTS_JSON`.
+1. Each entry supports `name`, `host`, `user`, and optional `credential_env` for the IMAP credential.
+1. Disable automatic registration with `EMAIL_MCP_REGISTER_ACCOUNTS=false`.
+1. Credentials are stored in the OS keyring and loaded at runtime.
+
+Example JSON (single line):
+`[{"name":"primary","host":"imap.gmail.com","user":"me@gmail.com","credential_env":"EMAIL_MCP_CRED_PRIMARY"}]`
+
+## Access Log
+1. Writes JSON lines to `access.log` under the data directory.
+1. Logs action, account, result, and minimal details.
+
 ## MCP Tools (Current)
 - `list_mailboxes`
 - `sync_mailbox`

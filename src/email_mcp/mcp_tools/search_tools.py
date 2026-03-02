@@ -14,6 +14,7 @@ from ..db.queries import (
 )
 from ..settings import Settings
 from ..vector.hybrid import hybrid_rank
+from ..access_log import log_action
 from ..logging import get_logger
 
 logger = get_logger(__name__)
@@ -47,6 +48,7 @@ def register_search_tools(app) -> None:
                     for message in results
                 )
             logger.info("search_messages took %.3fs (results=%s)", time.monotonic() - start, total)
+            log_action("search_messages", account_name, "ok", {"count": total})
             return payload
 
     @app.tool()
@@ -76,6 +78,7 @@ def register_search_tools(app) -> None:
                     for message in results
                 )
             logger.info("search_messages_exact took %.3fs (results=%s)", time.monotonic() - start, total)
+            log_action("search_messages_exact", account_name, "ok", {"count": total})
             return payload
 
     @app.tool()
@@ -105,6 +108,7 @@ def register_search_tools(app) -> None:
                     for message in results
                 )
             logger.info("search_messages_by_label took %.3fs (results=%s)", time.monotonic() - start, total)
+            log_action("search_messages_by_label", account_name, "ok", {"count": total})
             return payload
 
     @app.tool()
@@ -161,4 +165,5 @@ def register_search_tools(app) -> None:
                     for message in results
                 )
             logger.info("search_messages_hybrid took %.3fs (results=%s)", time.monotonic() - start, total)
+            log_action("search_messages_hybrid", account_name, "ok", {"count": total})
             return payload

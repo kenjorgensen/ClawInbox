@@ -14,3 +14,5 @@
 1. Sync supports date filtering via IMAP `SINCE` and optional `BEFORE` in `DD-Mon-YYYY` format.
 1. Vector search is optional and requires the `vector` extra dependencies.
 1. Use the maintenance tool to purge stored messages and reduce local data footprint.
+1. Account registry can seed accounts from env JSON and stores credentials in the OS keyring.
+1. Access log is written to `access.log` in the data directory for auditing.

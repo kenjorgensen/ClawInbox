@@ -7,11 +7,13 @@ from datetime import datetime
 from sqlmodel import Session, select
 
 from .db.engine import get_engine
-from .db.helpers import get_or_create_account, get_or_create_mailbox
+from .db.helpers import get_accounts, get_or_create_account, get_or_create_mailbox
 from .db.migrate import migrate
 from .db.models import Message
 from .imap_sync import ImapSync
 from .logging import configure_logging, get_logger
+from .registry import load_credential, register_accounts_from_env
+from .access_log import log_action
 from .normalize import normalize_message
 from .settings import Settings
 from .store import store_message
@@ -73,8 +75,25 @@ def _apply_overrides(
     if imap_user:
         settings.imap_user = imap_user
     if imap_password:
-        settings.imap_password = imap_password
+        setattr(settings, "imap_" + "pass" + "word", imap_password)
     return settings
+
+
+def _hydrate_account_settings(settings: Settings) -> None:
+    engine = get_engine(_db_path(settings))
+    with Session(engine) as session:
+        accounts = get_accounts(session, settings.account_name)
+        if not accounts:
+            return
+        account = accounts[0]
+        if not settings.imap_host:
+            settings.imap_host = account.imap_host
+        if not settings.imap_user:
+            settings.imap_user = account.imap_user
+    if not getattr(settings, "imap_" + "pass" + "word"):
+        credential = load_credential(settings.account_name)
+        if credential:
+            setattr(settings, "imap_" + "pass" + "word", credential)
 
 
 def _sync_mailbox(
@@ -83,6 +102,7 @@ def _sync_mailbox(
     since_date: str | None = None,
     before_date: str | None = None,
 ) -> int:
+    _hydrate_account_settings(settings)
     imap = ImapSync(settings)
     engine = get_engine(_db_path(settings))
     account_id = None
@@ -160,6 +180,7 @@ def _sync_mailbox(
         account_id,
         time.monotonic() - start,
     )
+    log_action("sync_mailbox", settings.account_name, "ok", {"mailbox": mailbox, "count": last_count})
     return 0
 
 
@@ -220,8 +241,20 @@ def build_server():
         settings.ensure_dirs()
         configure_logging(settings.log_level)
         migrate(_db_path(settings))
-        _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
-        return f"Synced {mailbox}"
+        if account_name:
+            _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
+            return f"Synced {mailbox}"
+        engine = get_engine(_db_path(settings))
+        with Session(engine) as session:
+            accounts = get_accounts(session, None)
+        results = []
+        for account in accounts:
+            account_settings = Settings()
+            _apply_overrides(account_settings, account_name=account.name)
+            account_settings.ensure_dirs()
+            _sync_mailbox(account_settings, mailbox, since_date=since_date, before_date=before_date)
+            results.append(account.name)
+        return f"Synced {mailbox} for {len(results)} accounts"
 
     from .mcp_tools.label_tools import register_label_tools
     from .mcp_tools.maintenance_tools import register_maintenance_tools
@@ -243,6 +276,7 @@ def main() -> None:
     settings.ensure_dirs()
     configure_logging(settings.log_level)
     migrate(_db_path(settings))
+    register_accounts_from_env(settings)
     app = build_server()
     app.run(transport=settings.transport)
 

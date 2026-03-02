@@ -6,6 +6,7 @@ from ..db.engine import get_engine
 from ..db.helpers import get_accounts, get_or_create_account
 from ..db.models import Message
 from ..settings import Settings
+from ..access_log import log_action
 
 
 def register_status_tools(app) -> None:
@@ -34,7 +35,9 @@ def register_status_tools(app) -> None:
                     }
                 )
             if account_name:
+                log_action("sync_status", account_name, "ok", {"count": 1})
                 return statuses[0]
+            log_action("sync_status", None, "ok", {"count": len(statuses)})
             return statuses
 
     @app.tool()
@@ -51,5 +54,7 @@ def register_status_tools(app) -> None:
                 session.add(account)
             session.commit()
         if account_name:
+            log_action("set_sync_enabled", account_name, "ok", {"enabled": enabled})
             return f"Sync enabled set to {enabled} for {account_name}"
+        log_action("set_sync_enabled", None, "ok", {"enabled": enabled, "count": len(accounts)})
         return f"Sync enabled set to {enabled} for {len(accounts)} accounts"

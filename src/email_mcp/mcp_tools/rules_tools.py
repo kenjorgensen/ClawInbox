@@ -8,6 +8,7 @@ from ..db.models import Message, Rule
 from ..normalize import NormalizedMessage
 from ..rules.rules_engine import apply_rules, load_rules
 from ..settings import Settings
+from ..access_log import log_action
 
 
 def register_rules_tools(app) -> None:
@@ -41,7 +42,9 @@ def register_rules_tools(app) -> None:
                 created += 1
             session.commit()
         if account_name:
+            log_action("create_rule", account_name, "ok", {"created": created})
             return f"Created rule {name}"
+        log_action("create_rule", None, "ok", {"created": created})
         return f"Created rule {name} for {created} accounts"
 
     @app.tool()
@@ -61,6 +64,7 @@ def register_rules_tools(app) -> None:
                         names.append(rule.name)
                     else:
                         names.append(f"{account.name}:{rule.name}")
+            log_action("list_rules", account_name, "ok", {"count": len(names)})
             return names
 
     @app.tool()
@@ -84,4 +88,6 @@ def register_rules_tools(app) -> None:
                 date=message.date,
                 text=message.text,
             )
-            return apply_rules(normalized, specs)
+            labels = apply_rules(normalized, specs)
+            log_action("apply_rules_to_message", account_name, "ok", {"count": len(labels)})
+            return labels

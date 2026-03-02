@@ -17,6 +17,7 @@ build/
 email.db
 *.sqlite
 *.sqlite3
+access.log
 *.token
 *.creds
 credentials.json

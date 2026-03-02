@@ -3,4 +3,6 @@
 1. Implement expunge detection/resync policy.
 1. Implement vector-store cleanup during retention/purge.
 1. Add a manual live IMAP smoke test checklist for multi-account pulls.
+1. Add account registry via env JSON and OS keyring credential storage.
+1. Add access logging for action and result auditing.
 1. Tag release: `v0.5-iter5`.

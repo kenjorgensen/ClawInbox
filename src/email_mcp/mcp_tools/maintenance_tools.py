@@ -9,6 +9,7 @@ from ..db.engine import get_engine
 from ..db.helpers import get_accounts, get_or_create_account
 from ..db.models import Label, Message, MessageLabel
 from ..settings import Settings
+from ..access_log import log_action
 
 
 def _delete_file(path: str) -> None:
@@ -70,4 +71,5 @@ def register_maintenance_tools(app) -> None:
     ) -> str:
         settings = Settings()
         count = purge_messages_internal(settings, account_name, label, older_than_days)
+        log_action("purge_messages", account_name, "ok", {"count": count})
         return f"Deleted {count} messages."

@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     account_name: str = "default"
     imap_retry_count: int = 3
     imap_retry_delay_seconds: float = 1.0
+    register_accounts: bool = True
+    accounts_json: str | None = None
 
     log_level: str = "INFO"
 

@@ -6,6 +6,7 @@ from ..db.engine import get_engine
 from ..db.helpers import get_accounts, get_or_create_account
 from ..db.models import Label, Message, MessageLabel
 from ..settings import Settings
+from ..access_log import log_action
 
 
 def register_label_tools(app) -> None:
@@ -29,7 +30,10 @@ def register_label_tools(app) -> None:
                 created += 1
             session.commit()
         if account_name:
-            return f"Created label {name}" if created else f"Label already exists: {name}"
+            result = f"Created label {name}" if created else f"Label already exists: {name}"
+            log_action("create_label", account_name, "ok", {"created": created})
+            return result
+        log_action("create_label", None, "ok", {"created": created})
         return f"Created label {name} for {created} accounts"
 
     @app.tool()
@@ -49,6 +53,7 @@ def register_label_tools(app) -> None:
                         labels.append(label.name)
                     else:
                         labels.append(f"{account.name}:{label.name}")
+            log_action("list_labels", account_name, "ok", {"count": len(labels)})
             return labels
 
     @app.tool()
@@ -78,6 +83,7 @@ def register_label_tools(app) -> None:
                 return f"Label already applied: {label_name}"
             session.add(MessageLabel(message_id=message.id, label_id=label.id))
             session.commit()
+        log_action("apply_label", account_name, "ok", {"message_id": message_id, "label": label_name})
         return f"Applied label {label_name} to message {message_id}"
 
     @app.tool()
@@ -104,4 +110,5 @@ def register_label_tools(app) -> None:
                 return f"Label not applied: {label_name}"
             session.delete(link)
             session.commit()
+        log_action("remove_label", account_name, "ok", {"message_id": message_id, "label": label_name})
         return f"Removed label {label_name} from message {message_id}"

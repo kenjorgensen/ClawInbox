@@ -16,6 +16,8 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 - Added HTTP transport settings and bearer/OAuth hooks.
 - Added maintenance tool for purging messages.
 - Added cross-account operations when `account_name` is omitted.
+- Added account registry from env JSON and OS keyring credential storage.
+- Added access log for actions and results.
 
 ## Deliverables
 - Plan: `Plan.md`
