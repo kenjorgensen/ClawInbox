@@ -18,5 +18,6 @@
 1. Account registry can seed accounts from env JSON and stores credentials in the OS keyring.
 1. Use `email-mcp-register` and `email-mcp-list` to manage the registry from the CLI.
 1. Access log is written to `access.log` in the data directory for auditing.
+1. Access log redacts sensitive fields automatically.
 1. Resync cleanup can remove local messages missing on the server when `EMAIL_MCP_RESYNC_MISSING=true`.
 1. CI uses gitleaks for secret scanning instead of regex checks.
