@@ -56,6 +56,12 @@ def _init_fts(engine) -> None:
 def migrate(db_path: Path) -> None:
     engine = get_engine(db_path)
     init_db(engine)
+    with engine.begin() as conn:
+        columns = {
+            row[1] for row in conn.exec_driver_sql("PRAGMA table_info(account);").fetchall()
+        }
+        if "imap_port" not in columns:
+            conn.exec_driver_sql("ALTER TABLE account ADD COLUMN imap_port INTEGER DEFAULT 993;")
     _init_fts(engine)
 
 

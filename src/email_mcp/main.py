@@ -14,6 +14,7 @@ from .db.migrate import migrate
 from .db.models import Message
 from .imap_sync import ImapSync
 from .logging import configure_logging, get_logger
+from .config import load_config
 from .registry import load_credential, register_accounts_from_env
 from .access_log import log_action
 from .normalize import normalize_message
@@ -90,6 +91,7 @@ def _hydrate_account_settings(settings: Settings) -> None:
         account = accounts[0]
         if not settings.imap_host:
             settings.imap_host = account.imap_host
+        settings.imap_port = account.imap_port
         if not settings.imap_user:
             settings.imap_user = account.imap_user
     if not getattr(settings, "imap_" + "pass" + "word"):
@@ -242,6 +244,38 @@ def _db_path(settings: Settings) -> Path:
     return settings.data_dir / "email.db"
 
 
+def list_mailboxes_impl(account_name: str | None = None) -> dict:
+    settings = Settings()
+    _apply_overrides(settings, account_name=account_name)
+    settings.ensure_dirs()
+    configure_logging(settings.log_level)
+    if account_name:
+        _hydrate_account_settings(settings)
+        imap = ImapSync(settings)
+        try:
+            mailboxes = imap.list_mailboxes()
+        finally:
+            imap.disconnect()
+        return {"status": "ok", "account": account_name, "mailboxes": mailboxes}
+    engine = get_engine(_db_path(settings))
+    with Session(engine) as session:
+        accounts = get_accounts(session, None)
+    results: list[dict] = []
+    for account in accounts:
+        account_settings = Settings()
+        _apply_overrides(account_settings, account_name=account.name)
+        account_settings.ensure_dirs()
+        configure_logging(account_settings.log_level)
+        _hydrate_account_settings(account_settings)
+        imap = ImapSync(account_settings)
+        try:
+            mailboxes = imap.list_mailboxes()
+        finally:
+            imap.disconnect()
+        results.append({"account": account.name, "mailboxes": mailboxes})
+    return {"status": "ok", "accounts": results}
+
+
 def build_server():
     try:
         from mcp.server.fastmcp import FastMCP
@@ -263,43 +297,26 @@ def build_server():
     app = FastMCP("email-mcp", **app_kwargs)
 
     @app.tool()
-    def list_mailboxes(account_name: str | None = None, imap_host: str | None = None, imap_user: str | None = None) -> list[str]:
-        settings = Settings()
-        _apply_overrides(settings, account_name=account_name, imap_host=imap_host, imap_user=imap_user)
-        settings.ensure_dirs()
-        configure_logging(settings.log_level)
-        imap = ImapSync(settings)
-        try:
-            return imap.list_mailboxes()
-        finally:
-            imap.disconnect()
+    def list_mailboxes(account_name: str | None = None) -> dict:
+        return list_mailboxes_impl(account_name)
 
     @app.tool()
     def sync_mailbox(
         mailbox: str,
         account_name: str | None = None,
-        imap_host: str | None = None,
-        imap_user: str | None = None,
-        imap_password: str | None = None,
         since_date: str | None = None,
         before_date: str | None = None,
-    ) -> str:
+    ) -> dict:
         settings = Settings()
-        _apply_overrides(
-            settings,
-            account_name=account_name,
-            imap_host=imap_host,
-            imap_user=imap_user,
-            imap_password=imap_password,
-        )
+        _apply_overrides(settings, account_name=account_name)
         settings.ensure_dirs()
         configure_logging(settings.log_level)
         migrate(_db_path(settings))
         if account_name:
-            _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
-            return f"Synced {mailbox}"
-        count = sync_mailbox_across_accounts(mailbox, settings, since_date=since_date, before_date=before_date)
-        return f"Synced {mailbox} for {count} accounts"
+            job_id = _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
+            return {"status": "ok", "account": account_name, "mailbox": mailbox, "job_id": job_id}
+        job_ids = sync_mailbox_across_accounts(mailbox, settings, since_date=since_date, before_date=before_date)
+        return {"status": "ok", "mailbox": mailbox, "accounts": len(job_ids), "job_ids": job_ids}
 
     from .mcp_tools.label_tools import register_label_tools
     from .mcp_tools.maintenance_tools import register_maintenance_tools
@@ -319,6 +336,9 @@ def build_server():
 def main() -> None:
     settings = Settings()
     settings.ensure_dirs()
+    config = load_config(settings)
+    if not config.mcp_enabled:
+        raise RuntimeError("MCP service is disabled by config.")
     configure_logging(settings.log_level)
     migrate(_db_path(settings))
     register_accounts_from_env(settings)

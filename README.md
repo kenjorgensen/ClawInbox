@@ -8,9 +8,24 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. Create a venv: `python -m venv .venv`
 1. Install deps: `.venv\\Scripts\\python -m pip install -e .[dev]`
 1. Optional vector deps: `.venv\\Scripts\\python -m pip install -e .[dev,vector]`
-1. Single-account default via env: `EMAIL_MCP_IMAP_HOST`, `EMAIL_MCP_IMAP_USER`, and the IMAP credential env.
-1. Register an account: `email-mcp-cli register-account --name <name> --host <host> --user <user> --credential <app_password>`
-1. Run: `.venv\\Scripts\\python -m email_mcp.main`
+1. Configure accounts via env: `EMAIL_MCP_ACCOUNTS_JSON` (see Account Registry).
+1. Initialize the DB: `email-mcp-init`
+1. Register accounts from env: `email-mcp-register`
+1. Register one account manually: `email-mcp-register --name NAME --host HOST --user USER --credential APP_CREDENTIAL`
+1. CLI entrypoint: `.venv\\Scripts\\email-mcp-cli --help` (or `email-mcp-cli --help` if your venv is active)
+1. MCP service entrypoint (stdio): `.venv\\Scripts\\python -m email_mcp.main`
+1. MCP service entrypoint (HTTP): `set EMAIL_MCP_TRANSPORT=streamable-http` then run the same command above
+
+PowerShell note: avoid angle-bracket placeholders like `<job_id>`; use a literal value, e.g. `email-mcp-cli job-status 123`.
+
+## CLI Output
+1. CLI commands return JSON with a top-level `status` field.
+1. Set `EMAIL_MCP_DEBUG_ERRORS=true` to include error details in JSON output.
+1. Use `--ndjson` to emit one JSON object per line (NDJSON).
+
+## Service Config
+1. `email-mcp-init` writes a local `config.json` under the data directory.
+1. Use `email-mcp-init --enable-cli/--disable-cli` and `--enable-mcp/--disable-mcp` to control pathways.
 
 ## HTTP Transport
 1. Set `EMAIL_MCP_TRANSPORT=streamable-http`
@@ -31,8 +46,8 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 
 ## Multi-Account
 1. Pass `account_name` to tool calls (optional). If omitted, operations apply across all accounts when supported.
-1. For sync, pass `account_name`, `imap_host`, and `imap_user` per account; provide credentials at runtime.
-1. Example: `sync_mailbox("INBOX", account_name="primary", imap_host="imap.gmail.com", imap_user="me@gmail.com")`
+1. Sync uses registered accounts and loads credentials from the OS keyring.
+1. Example: `sync_mailbox("INBOX", account_name="primary")`
 1. Optional date filtering: use `since_date` (required) and `before_date` (optional) in IMAP `DD-Mon-YYYY` format.
 1. Cross-account searches include an `account` field in results.
 1. If `since_date` is provided, UID-based incremental sync is bypassed to allow backfill.
@@ -40,7 +55,8 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 
 ## Account Registry
 1. Register accounts from env JSON by setting `EMAIL_MCP_ACCOUNTS_JSON`.
-1. Each entry supports `name`, `host`, `user`, and optional `credential_env` for the IMAP credential.
+1. Each entry supports `name`, `host`, `user`, optional `port`, and optional `credential_env` for the IMAP credential.
+1. Alternative env format: use per-account prefixes with `_EMAIL_MCP_*` suffixes.
 1. Disable automatic registration with `EMAIL_MCP_REGISTER_ACCOUNTS=false`.
 1. Credentials are stored in the OS keyring and loaded at runtime.
 1. CLI: `email-mcp-init` (init DB), `email-mcp-register` (register from env), `email-mcp-list` (list accounts + credential status).
@@ -48,6 +64,13 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 
 Example JSON (single line):
 `[{"name":"primary","host":"imap.gmail.com","user":"me@gmail.com","credential_env":"EMAIL_MCP_CRED_PRIMARY"}]`
+
+Example prefixed env:
+1. `PRIMARY_EMAIL_MCP_HOST=imap.gmail.com`
+1. `PRIMARY_EMAIL_MCP_USER=me@gmail.com`
+1. `PRIMARY_EMAIL_MCP_CRED=...`
+1. Optional: `PRIMARY_EMAIL_MCP_NAME=Primary`
+1. Optional: `PRIMARY_EMAIL_MCP_PORT=993`
 
 ## Access Log
 1. Writes JSON lines to `access.log` under the data directory.
@@ -70,6 +93,8 @@ Example JSON (single line):
 - `purge_messages`
 - `sync_status`
 - `set_sync_enabled`
+- `job_status`
+- `unregister_account_tool`
 
 ## Test Results
 Generated from pytest JSON report.
@@ -78,14 +103,27 @@ Generated from pytest JSON report.
 | Category | Test | Pass? |
 | --- | --- | --- |
 | CLI | Cli Init Db | Yes |
+| CLI | Cli Label Apply Remove | Yes |
 | CLI | Cli Label Create | Yes |
+| CLI | Cli Label List | Yes |
+| CLI | Cli List Mailboxes | Yes |
+| CLI | Cli Ndjson List | Yes |
+| CLI | Cli Ndjson List Output | Yes |
+| CLI | Cli Ndjson Status Output | Yes |
 | CLI | Cli Purge | Yes |
+| CLI | Cli Register From Prefixed Env | Yes |
 | CLI | Cli Register List | Yes |
+| CLI | Cli Register Manual | Yes |
 | CLI | Cli Rules Create | Yes |
+| CLI | Cli Rules List Apply | Yes |
 | CLI | Cli Search | Yes |
+| CLI | Cli Search Exact | Yes |
+| CLI | Cli Search Hybrid | Yes |
+| CLI | Cli Search Label | Yes |
 | CLI | Cli Set Sync Enabled | Yes |
 | CLI | Cli Status | Yes |
 | CLI | Cli Sync | Yes |
+| CLI | Cli Unregister | Yes |
 | Database | Account Defaults | Yes |
 | Database | Db Roundtrip | Yes |
 | IMAP | Imap Connect Missing Settings | Yes |
@@ -98,6 +136,8 @@ Generated from pytest JSON report.
 | Maintenance | Purge Messages No Label Match | Yes |
 | Normalization | Normalize Plain Text | Yes |
 | Normalization | Normalize Property | Yes |
+| Other | Parse Accounts From Prefixed Env With Custom Name And Port | Yes |
+| Other | Parse Accounts From Prefixed Env With Multi Prefix | Yes |
 | Rules | Rules Apply | Yes |
 | Rules | Rules Disabled | Yes |
 | Search | Fts No Results | Yes |

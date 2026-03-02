@@ -50,7 +50,7 @@ def test_sync_status_all_accounts(tmp_path, monkeypatch):
     app = DummyApp()
     register_status_tools(app)
     status = app.tools["sync_status"]()
-    accounts = {item["account"] for item in status}
+    accounts = {item["account"] for item in status["data"]}
     assert accounts == {"a", "b"}
 
 
@@ -64,4 +64,4 @@ def test_set_sync_enabled_all_accounts(tmp_path, monkeypatch):
     app = DummyApp()
     register_status_tools(app)
     result = app.tools["set_sync_enabled"](False)
-    assert "2 accounts" in result
+    assert "2 accounts" in result["result"]

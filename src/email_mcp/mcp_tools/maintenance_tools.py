@@ -10,6 +10,7 @@ from ..db.helpers import get_accounts, get_or_create_account
 from ..db.models import Label, Message, MessageLabel
 from ..settings import Settings
 from ..access_log import log_action
+from ..registry import unregister_account
 
 
 def _delete_file(path: str) -> None:
@@ -91,5 +92,13 @@ def register_maintenance_tools(app) -> None:
         account_name: str | None = None,
         label: str | None = None,
         older_than_days: int | None = None,
-    ) -> str:
-        return purge_messages_impl(account_name, label, older_than_days)
+    ) -> dict:
+        return {"status": "ok", "result": purge_messages_impl(account_name, label, older_than_days)}
+
+    @app.tool()
+    def unregister_account_tool(account_name: str, purge: bool = False) -> dict:
+        settings = Settings()
+        settings.ensure_dirs()
+        result = unregister_account(settings, account_name, purge=purge)
+        log_action("unregister_account", account_name, "ok", {"purge": purge})
+        return {"status": "ok", "result": result}

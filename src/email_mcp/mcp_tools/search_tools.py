@@ -169,16 +169,16 @@ def search_messages_hybrid_impl(
 
 def register_search_tools(app) -> None:
     @app.tool()
-    def search_messages(query: str, limit: int = 20, account_name: str | None = None) -> list[dict]:
-        return search_messages_impl(query, limit, account_name)
+    def search_messages(query: str, limit: int = 20, account_name: str | None = None) -> dict:
+        return {"status": "ok", "results": search_messages_impl(query, limit, account_name)}
 
     @app.tool()
-    def search_messages_exact(from_addr: str, account_name: str | None = None) -> list[dict]:
-        return search_messages_exact_impl(from_addr, account_name)
+    def search_messages_exact(from_addr: str, account_name: str | None = None) -> dict:
+        return {"status": "ok", "results": search_messages_exact_impl(from_addr, account_name)}
 
     @app.tool()
-    def search_messages_by_label(label: str, account_name: str | None = None) -> list[dict]:
-        return search_messages_by_label_impl(label, account_name)
+    def search_messages_by_label(label: str, account_name: str | None = None) -> dict:
+        return {"status": "ok", "results": search_messages_by_label_impl(label, account_name)}
 
     @app.tool()
     def search_messages_hybrid(
@@ -186,5 +186,5 @@ def register_search_tools(app) -> None:
         limit: int = 20,
         vector_limit: int = 10,
         account_name: str | None = None,
-    ) -> list[dict]:
-        return search_messages_hybrid_impl(query, limit, vector_limit, account_name)
+    ) -> dict:
+        return {"status": "ok", "results": search_messages_hybrid_impl(query, limit, vector_limit, account_name)}

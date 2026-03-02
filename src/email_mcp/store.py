@@ -19,3 +19,15 @@ def store_message(base_dir: Path, account: str, mailbox: str, uid: int, raw: byt
     path = account_dir / f"{uid}.eml"
     path.write_bytes(raw)
     return path
+
+
+def delete_account_store(base_dir: Path, account: str) -> None:
+    account_dir = base_dir / _safe_name(account)
+    if not account_dir.exists():
+        return
+    for path in account_dir.rglob("*.eml"):
+        path.unlink(missing_ok=True)
+    for path in sorted(account_dir.rglob("*"), reverse=True):
+        if path.is_dir():
+            path.rmdir()
+    account_dir.rmdir()

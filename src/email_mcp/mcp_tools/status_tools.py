@@ -80,12 +80,12 @@ def job_status_impl(job_id: int) -> dict:
 def register_status_tools(app) -> None:
     @app.tool()
     def sync_status(account_name: str | None = None) -> dict:
-        return sync_status_impl(account_name)
+        return {"status": "ok", "data": sync_status_impl(account_name)}
 
     @app.tool()
-    def set_sync_enabled(enabled: bool, account_name: str | None = None) -> str:
-        return set_sync_enabled_impl(enabled, account_name)
+    def set_sync_enabled(enabled: bool, account_name: str | None = None) -> dict:
+        return {"status": "ok", "result": set_sync_enabled_impl(enabled, account_name)}
 
     @app.tool()
     def job_status(job_id: int) -> dict:
-        return job_status_impl(job_id)
+        return {"status": "ok", "data": job_status_impl(job_id)}

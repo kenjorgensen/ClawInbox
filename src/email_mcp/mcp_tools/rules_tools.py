@@ -100,13 +100,13 @@ def register_rules_tools(app) -> None:
         label: str,
         enabled: bool = True,
         account_name: str | None = None,
-    ) -> str:
-        return create_rule_impl(name, field, pattern, label, enabled, account_name)
+    ) -> dict:
+        return {"status": "ok", "result": create_rule_impl(name, field, pattern, label, enabled, account_name)}
 
     @app.tool()
-    def list_rules(account_name: str | None = None) -> list[str]:
-        return list_rules_impl(account_name)
+    def list_rules(account_name: str | None = None) -> dict:
+        return {"status": "ok", "rules": list_rules_impl(account_name)}
 
     @app.tool()
-    def apply_rules_to_message(message_id: int, account_name: str | None = None) -> list[str]:
-        return apply_rules_to_message_impl(message_id, account_name)
+    def apply_rules_to_message(message_id: int, account_name: str | None = None) -> dict:
+        return {"status": "ok", "labels": apply_rules_to_message_impl(message_id, account_name)}

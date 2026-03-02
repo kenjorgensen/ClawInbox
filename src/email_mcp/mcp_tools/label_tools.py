@@ -114,17 +114,17 @@ def remove_label_impl(message_id: int, label_name: str, account_name: str | None
 
 def register_label_tools(app) -> None:
     @app.tool()
-    def create_label(name: str, account_name: str | None = None) -> str:
-        return create_label_impl(name, account_name)
+    def create_label(name: str, account_name: str | None = None) -> dict:
+        return {"status": "ok", "result": create_label_impl(name, account_name)}
 
     @app.tool()
-    def list_labels(account_name: str | None = None) -> list[str]:
-        return list_labels_impl(account_name)
+    def list_labels(account_name: str | None = None) -> dict:
+        return {"status": "ok", "labels": list_labels_impl(account_name)}
 
     @app.tool()
-    def apply_label(message_id: int, label_name: str, account_name: str | None = None) -> str:
-        return apply_label_impl(message_id, label_name, account_name)
+    def apply_label(message_id: int, label_name: str, account_name: str | None = None) -> dict:
+        return {"status": "ok", "result": apply_label_impl(message_id, label_name, account_name)}
 
     @app.tool()
-    def remove_label(message_id: int, label_name: str, account_name: str | None = None) -> str:
-        return remove_label_impl(message_id, label_name, account_name)
+    def remove_label(message_id: int, label_name: str, account_name: str | None = None) -> dict:
+        return {"status": "ok", "result": remove_label_impl(message_id, label_name, account_name)}

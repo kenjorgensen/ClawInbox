@@ -9,6 +9,7 @@ class Account(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True)
     imap_host: str
+    imap_port: int = Field(default=993)
     imap_user: str
     sync_enabled: bool = Field(default=True, index=True)
     last_pull_at: datetime | None = Field(default=None, index=True)

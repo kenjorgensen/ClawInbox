@@ -18,15 +18,19 @@ def get_or_create_account(
     settings: Settings,
     account_name: str | None = None,
     imap_host: str | None = None,
+    imap_port: int | None = None,
     imap_user: str | None = None,
 ) -> Account:
     name = account_name or settings.account_name
     host = imap_host or settings.imap_host or ""
+    port = imap_port or settings.imap_port
     user = imap_user or settings.imap_user or ""
     existing = session.exec(select(Account).where(Account.name == name)).first()
     if existing:
         if host and existing.imap_host != host:
             existing.imap_host = host
+        if port and existing.imap_port != port:
+            existing.imap_port = port
         if user and existing.imap_user != user:
             existing.imap_user = user
         session.add(existing)
@@ -35,6 +39,7 @@ def get_or_create_account(
     account = Account(
         name=name,
         imap_host=host,
+        imap_port=port,
         imap_user=user,
     )
     session.add(account)
