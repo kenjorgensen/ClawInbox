@@ -11,14 +11,14 @@ Use when onboarding a new mailbox or reloading history into local storage.
 
 ## Steps
 1. Initialize storage: `email-mcp-init`
-1. Register account: `email-mcp-register --name NAME --host HOST --user USER --credential APP_CREDENTIAL`
-1. Backfill: `email-mcp-cli sync --mailbox INBOX --since-date 01-Feb-2026`
-1. Check job: `email-mcp-cli job-status 123`
+2. Register account: `email-mcp-register --name NAME --host HOST --user USER --credential APP_CREDENTIAL`
+3. Backfill: `email-mcp-cli sync --mailbox INBOX --since-date 01-Feb-2026`
+4. Check job: `email-mcp-cli job-status 123`
 
 ## Examples
 1. `email-mcp-register --name primary --host imap.gmail.com --user me@gmail.com --credential APP_CREDENTIAL`
-1. `email-mcp-cli sync --mailbox INBOX --since-date 01-Feb-2026`
+2. `email-mcp-cli sync --mailbox INBOX --since-date 01-Feb-2026`
 
 ## Notes
 1. CLI outputs structured JSON by default; use `--ndjson` for line-delimited output.
-1. Backfill ignores UID-only incremental filtering when `--since-date` is provided.
+2. Backfill ignores UID-only incremental filtering when `--since-date` is provided.

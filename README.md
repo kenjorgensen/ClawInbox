@@ -103,20 +103,20 @@ Generated from pytest JSON report.
 | Category | Test | Pass? |
 | --- | --- | --- |
 | CLI | Cli Init Db | Yes |
+| CLI | Cli Job Status | Yes |
 | CLI | Cli Label Apply Remove | Yes |
 | CLI | Cli Label Create | Yes |
 | CLI | Cli Label List | Yes |
-| CLI | Cli List Mailboxes | Yes |
 | CLI | Cli Ndjson List | Yes |
 | CLI | Cli Ndjson List Output | Yes |
 | CLI | Cli Ndjson Status Output | Yes |
 | CLI | Cli Purge | Yes |
-| CLI | Cli Register From Prefixed Env | Yes |
 | CLI | Cli Register List | Yes |
 | CLI | Cli Register Manual | Yes |
 | CLI | Cli Rules Create | Yes |
 | CLI | Cli Rules List Apply | Yes |
 | CLI | Cli Search | Yes |
+| CLI | Cli Search By Label Alias | Yes |
 | CLI | Cli Search Exact | Yes |
 | CLI | Cli Search Hybrid | Yes |
 | CLI | Cli Search Label | Yes |

@@ -16,6 +16,7 @@ Use when you need to pick the right workflow skill.
 1. Pull recent emails: `docs/skills/clawinbox-email-mcp/clawinbox-pull-recent/SKILL.md`
 1. Search/query: `docs/skills/clawinbox-email-mcp/clawinbox-search-query/SKILL.md`
 1. Tagging and rules: `docs/skills/clawinbox-email-mcp/clawinbox-tagging-rules/SKILL.md`
+1. Hosted MCP workflows: `docs/skills/clawinbox-email-mcp-hosted/SKILL.md`
 
 ## Examples
 1. Open `docs/skills/clawinbox-email-mcp/clawinbox-registration-backfill/SKILL.md` to onboard a mailbox.
