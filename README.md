@@ -16,3 +16,18 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 ## MCP Tools (Current)
 - `list_mailboxes`
 - `sync_mailbox`
+- `search_messages`
+- `search_messages_exact`
+- `search_messages_by_label`
+- `search_messages_hybrid`
+- `create_label`
+- `list_labels`
+- `apply_label`
+- `remove_label`
+- `create_rule`
+- `list_rules`
+- `apply_rules_to_message`
+
+## Test Results
+- Iteration 1 (2026-03-02): `pytest` -> 2 passed.
+- Iteration 2 (2026-03-02): `pytest` -> 5 passed.
