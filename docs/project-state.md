@@ -19,7 +19,7 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 
 ## Deliverables
 - Plan: `Plan.md`
-- Rollout iterations: `docs/rollout-iteration-1.md`, `docs/rollout-iteration-2.md`, `docs/rollout-iteration-3.md`, `docs/rollout-iteration-4.md`
+- Rollout iterations: `docs/rollout-iteration-1.md`, `docs/rollout-iteration-2.md`, `docs/rollout-iteration-3.md`, `docs/rollout-iteration-4.md`, `docs/rollout-iteration-5.md`
 - README: `README.md` (beta warning and quick start)
 - Engineering guide: `docs/engineering-guide.md`
 
@@ -38,3 +38,4 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 - Implement real OAuth provider integration
 - Add retention cleanup for vector store
 - Add integration tests for HTTP/auth and multi-account flows
+- Automate README test table regeneration in CI

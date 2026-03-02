@@ -26,6 +26,7 @@
    - Iter 3: Auth modes + multi-account + retention
 1. If tests are missing, add a TODO and create an issue.
 1. Include property-based tests for critical parsing/normalization code.
+1. Generate the README test table from pytest JSON output via `scripts/update_test_table.py`.
 
 ## Safety Check (PII)
 1. Before every commit, run a quick scan for secrets and personal data (email addresses, tokens, passwords).

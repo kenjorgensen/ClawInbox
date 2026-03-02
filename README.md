@@ -55,6 +55,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 ## Test Results
 Generated from pytest JSON report.
 
+<!-- TEST_TABLE_START -->
 | Category | Test | Pass? |
 | --- | --- | --- |
 | Database | Account Defaults | Yes |
@@ -76,6 +77,7 @@ Generated from pytest JSON report.
 | Status | Sync Status All Accounts | Yes |
 | Storage | Store Message | Yes |
 | Storage | Store Sanitizes Names | Yes |
+<!-- TEST_TABLE_END -->
 
 ## Engineering Guide
 See `docs/engineering-guide.md` for general process and project-specific notes.
