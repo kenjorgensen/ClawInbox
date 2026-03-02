@@ -46,3 +46,19 @@ def test_purge_messages(tmp_path: Path):
     deleted = purge_messages_internal(settings, account_name="test")
     assert deleted == 1
     assert not stored.exists()
+
+
+def test_purge_messages_no_label_match(tmp_path: Path):
+    db_path = tmp_path / "email.db"
+    migrate(db_path)
+    engine = get_engine(db_path)
+
+    with Session(engine) as session:
+        account = Account(name="test", imap_host="imap.example.com", imap_user="user")
+        session.add(account)
+        session.commit()
+
+    settings = Settings()
+    settings.data_dir = tmp_path
+    deleted = purge_messages_internal(settings, account_name="test", label="missing")
+    assert deleted == 0

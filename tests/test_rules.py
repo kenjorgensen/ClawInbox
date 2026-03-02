@@ -18,3 +18,18 @@ def test_rules_apply():
     labels = apply_rules(message, rules)
     assert "finance" in labels
     assert "alerts" in labels
+
+
+def test_rules_disabled():
+    rules = [
+        RuleSpec(name="disabled", field=RuleField.subject, pattern="hello", label="x", enabled=False),
+    ]
+    message = NormalizedMessage(
+        subject="hello",
+        from_addr="a@example.com",
+        to_addrs="b@example.com",
+        date="",
+        text="",
+    )
+    labels = apply_rules(message, rules)
+    assert labels == []

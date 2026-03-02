@@ -52,3 +52,16 @@ def test_sync_status_all_accounts(tmp_path, monkeypatch):
     status = app.tools["sync_status"]()
     accounts = {item["account"] for item in status}
     assert accounts == {"a", "b"}
+
+
+def test_set_sync_enabled_all_accounts(tmp_path, monkeypatch):
+    db_path = tmp_path / "email.db"
+    migrate(db_path)
+    _seed(db_path)
+    monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
+
+    app = DummyApp()
+    register_status_tools(app)
+    result = app.tools["set_sync_enabled"](False)
+    assert "2 accounts" in result

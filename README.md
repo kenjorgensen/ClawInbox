@@ -57,17 +57,25 @@ Generated from pytest JSON report.
 
 | Category | Test | Pass? |
 | --- | --- | --- |
-| db | test_db_roundtrip | Yes |
-| fts | test_fts_search | Yes |
-| hybrid | test_hybrid_rank_combines | Yes |
-| imap_errors | test_imap_connect_missing_settings | Yes |
-| normalize | test_normalize_plain_text | Yes |
-| normalize_property | test_normalize_property | Yes |
-| purge | test_purge_messages | Yes |
-| rules | test_rules_apply | Yes |
-| settings_dirs | test_settings_ensure_dirs | Yes |
-| status_tools | test_sync_status_all_accounts | Yes |
-| store | test_store_message | Yes |
+| Database | Account Defaults | Yes |
+| Database | Db Roundtrip | Yes |
+| IMAP | Imap Connect Missing Settings | Yes |
+| IMAP | Imap Fetch Builds Criteria | Yes |
+| Maintenance | Purge Messages | Yes |
+| Maintenance | Purge Messages No Label Match | Yes |
+| Normalization | Normalize Plain Text | Yes |
+| Normalization | Normalize Property | Yes |
+| Rules | Rules Apply | Yes |
+| Rules | Rules Disabled | Yes |
+| Search | Fts No Results | Yes |
+| Search | Fts Search | Yes |
+| Search | Hybrid Rank Combines | Yes |
+| Settings | Settings Ensure Dirs | Yes |
+| Settings | Settings Resolved Store Dir | Yes |
+| Status | Set Sync Enabled All Accounts | Yes |
+| Status | Sync Status All Accounts | Yes |
+| Storage | Store Message | Yes |
+| Storage | Store Sanitizes Names | Yes |
 
 ## Engineering Guide
 See `docs/engineering-guide.md` for general process and project-specific notes.

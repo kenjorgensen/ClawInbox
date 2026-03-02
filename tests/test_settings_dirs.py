@@ -14,3 +14,9 @@ def test_settings_ensure_dirs(tmp_path):
     assert settings.cache_dir.exists()
     assert settings.store_dir.exists()
     assert settings.vector_dir.exists()
+
+
+def test_settings_resolved_store_dir(tmp_path):
+    settings = Settings()
+    settings.data_dir = tmp_path / "data"
+    assert settings.resolved_store_dir == settings.data_dir / "eml"
