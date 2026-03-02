@@ -24,7 +24,7 @@ from .settings import Settings
 
 app = typer.Typer(add_completion=False)
 
-OUTPUT_MODE = "json"
+OUTPUT_MODE = "text"
 
 
 @app.callback()
@@ -36,7 +36,12 @@ def configure_output(
     global OUTPUT_MODE
     if json_flag and ndjson:
         raise typer.BadParameter("Choose only one of --json or --ndjson.")
-    OUTPUT_MODE = "ndjson" if ndjson else "json"
+    if ndjson:
+        OUTPUT_MODE = "ndjson"
+    elif json_flag:
+        OUTPUT_MODE = "json"
+    else:
+        OUTPUT_MODE = "text"
     ctx.ensure_object(dict)
     ctx.obj["output_mode"] = OUTPUT_MODE
     settings = Settings()
@@ -63,7 +68,36 @@ def _ndjson_lines(payload: object) -> list[str]:
     return [json.dumps(payload)]
 
 
+def _print_text(payload: object) -> None:
+    if isinstance(payload, dict):
+        if "message" in payload and isinstance(payload["message"], str):
+            print(payload["message"])
+            return
+        if "result" in payload and isinstance(payload["result"], str):
+            print(payload["result"])
+            return
+        for key, value in payload.items():
+            if isinstance(value, list):
+                print(f"{key}:")
+                _print_text(value)
+            else:
+                print(f"{key}={value}")
+        return
+    if isinstance(payload, list):
+        for item in payload:
+            if isinstance(item, dict):
+                parts = [f"{key}={value}" for key, value in item.items()]
+                print(", ".join(parts))
+            else:
+                print(item)
+        return
+    print(payload)
+
+
 def _print_json(payload: dict) -> None:
+    if OUTPUT_MODE == "text":
+        _print_text(payload)
+        return
     if OUTPUT_MODE == "ndjson":
         for line in _ndjson_lines(payload):
             print(line)

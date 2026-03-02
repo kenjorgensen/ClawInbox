@@ -67,18 +67,9 @@ def _build_auth(settings: Settings):
 def _apply_overrides(
     settings: Settings,
     account_name: str | None = None,
-    imap_host: str | None = None,
-    imap_user: str | None = None,
-    imap_password: str | None = None,
 ) -> Settings:
     if account_name:
         settings.account_name = account_name
-    if imap_host:
-        settings.imap_host = imap_host
-    if imap_user:
-        settings.imap_user = imap_user
-    if imap_password:
-        setattr(settings, "imap_" + "pass" + "word", imap_password)
     return settings
 
 

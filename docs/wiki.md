@@ -1,4 +1,4 @@
-# ClawInbox Wiki
+﻿# ClawInbox Wiki
 
 Complete reference for all MCP tools and CLI commands.
 
@@ -63,26 +63,29 @@ Lists all mailboxes (folders) available on the configured IMAP account.
 
 | Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `account_name` | `string \| null` | No | `null` | Name of the account to list mailboxes for. If omitted, uses the default account. |
-| `imap_host` | `string \| null` | No | `null` | Override the IMAP host for this call. |
-| `imap_user` | `string \| null` | No | `null` | Override the IMAP user for this call. |
+| `account_name` | `string \| null` | No | `null` | Name of the account to list mailboxes for. If omitted, lists all registered accounts. |
 
 **Returns**
 
-`list[string]` — A list of mailbox names available on the server.
+`object` — Structured response with mailboxes per account.
 
 ```json
-["INBOX", "Sent", "Drafts", "Trash", "[Gmail]/All Mail"]
+{
+  "status": "ok",
+  "accounts": [
+    { "account": "primary", "mailboxes": ["INBOX", "Sent"] }
+  ]
+}
 ```
 
 **Example**
 
 ```python
 list_mailboxes()
-# => ["INBOX", "Sent", "Drafts"]
+# => {"status":"ok","accounts":[...]}
 
 list_mailboxes(account_name="primary")
-# => ["INBOX", "Sent", "Spam"]
+# => {"status":"ok","account":"primary","mailboxes":[...]}
 ```
 
 ---
@@ -97,34 +100,31 @@ Fetches new messages from the given IMAP mailbox, stores them locally, and updat
 |---|---|---|---|---|
 | `mailbox` | `string` | **Yes** | — | Mailbox name to sync (e.g. `"INBOX"`). |
 | `account_name` | `string \| null` | No | `null` | Name of the account to sync. If omitted, syncs all accounts. |
-| `imap_host` | `string \| null` | No | `null` | Override the IMAP host for this call. |
-| `imap_user` | `string \| null` | No | `null` | Override the IMAP user for this call. |
-| `imap_password` | `string \| null` | No | `null` | Override the IMAP password for this call. |
 | `since_date` | `string \| null` | No | `null` | Fetch messages on or after this date in `DD-Mon-YYYY` format (e.g. `"01-Jan-2024"`). When set, UID-based incremental sync is bypassed to allow full backfill. |
 | `before_date` | `string \| null` | No | `null` | Fetch messages before this date in `DD-Mon-YYYY` format (e.g. `"31-Dec-2024"`). Requires `since_date` to be set for most IMAP servers. |
 
 **Returns**
 
-`string` — A confirmation message with the mailbox name and, for multi-account syncs, the number of accounts synced.
+`object` — Structured response with job ids and account count.
 
 ```json
-"Synced INBOX"
+{"status":"ok","account":"primary","mailbox":"INBOX","job_id":123}
 ```
 
 or for a multi-account sync:
 
 ```json
-"Synced INBOX for 3 accounts"
+{"status":"ok","mailbox":"INBOX","accounts":3,"job_ids":[1,2,3]}
 ```
 
 **Example**
 
 ```python
 sync_mailbox("INBOX")
-# => "Synced INBOX"
+# => {"status":"ok","mailbox":"INBOX","accounts":3,"job_ids":[...]}
 
 sync_mailbox("INBOX", account_name="primary", since_date="01-Jan-2024", before_date="31-Jan-2024")
-# => "Synced INBOX"
+# => {"status":"ok","mailbox":"INBOX","accounts":3,"job_ids":[...]}
 ```
 
 ---
@@ -1428,3 +1428,6 @@ email-mcp-cli job-status <job_id>
 ```sh
 email-mcp-cli job-status 7
 ```
+
+
+

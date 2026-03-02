@@ -11,7 +11,7 @@ runner = CliRunner()
 def test_cli_init_db(monkeypatch, tmp_path):
     monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
-    result = runner.invoke(cli.app, ["init"])
+    result = runner.invoke(cli.app, ["--json", "init"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -24,11 +24,11 @@ def test_cli_register_list(monkeypatch, tmp_path):
         "EMAIL_MCP_ACCOUNTS_JSON",
         '[{"name":"a","host":"imap.example.com","user":"a@example.com"}]',
     )
-    result = runner.invoke(cli.app, ["register"])
+    result = runner.invoke(cli.app, ["--json", "register"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
-    result = runner.invoke(cli.app, ["list"])
+    result = runner.invoke(cli.app, ["--json", "list"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -50,6 +50,7 @@ def test_cli_register_manual(monkeypatch, tmp_path):
     result = runner.invoke(
         cli.app,
         [
+            "--json",
             "register",
             "--name",
             "primary",
@@ -69,7 +70,7 @@ def test_cli_register_manual(monkeypatch, tmp_path):
 
 def test_cli_status(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.sync_status_impl", lambda account: {"account": account, "emails": 0})
-    result = runner.invoke(cli.app, ["status"])
+    result = runner.invoke(cli.app, ["--json", "status"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -77,7 +78,7 @@ def test_cli_status(monkeypatch):
 
 def test_cli_search(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.search_messages_impl", lambda query, limit=20, account_name=None: [])
-    result = runner.invoke(cli.app, ["search", "invoice"])
+    result = runner.invoke(cli.app, ["--json", "search", "invoice"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -85,7 +86,7 @@ def test_cli_search(monkeypatch):
 
 def test_cli_search_exact(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.search_messages_exact_impl", lambda from_addr, account_name=None: [])
-    result = runner.invoke(cli.app, ["search-exact", "me@example.com"])
+    result = runner.invoke(cli.app, ["--json", "search-exact", "me@example.com"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -93,7 +94,7 @@ def test_cli_search_exact(monkeypatch):
 
 def test_cli_search_label(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.search_messages_by_label_impl", lambda label, account_name=None: [])
-    result = runner.invoke(cli.app, ["search-label", "finance"])
+    result = runner.invoke(cli.app, ["--json", "search-label", "finance"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -110,7 +111,7 @@ def test_cli_search_hybrid(monkeypatch):
         "email_mcp.cli.search_messages_hybrid_impl",
         lambda query, limit=20, vector_limit=10, account_name=None: [],
     )
-    result = runner.invoke(cli.app, ["search-hybrid", "invoice"])
+    result = runner.invoke(cli.app, ["--json", "search-hybrid", "invoice"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -118,7 +119,7 @@ def test_cli_search_hybrid(monkeypatch):
 
 def test_cli_label_create(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.create_label_impl", lambda name, account_name=None: "ok")
-    result = runner.invoke(cli.app, ["label-create", "finance"])
+    result = runner.invoke(cli.app, ["--json", "label-create", "finance"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -126,7 +127,7 @@ def test_cli_label_create(monkeypatch):
 
 def test_cli_label_list(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.list_labels_impl", lambda account_name=None: ["finance"])
-    result = runner.invoke(cli.app, ["label-list"])
+    result = runner.invoke(cli.app, ["--json", "label-list"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -146,7 +147,7 @@ def test_cli_rules_create(monkeypatch):
         "email_mcp.cli.create_rule_impl",
         lambda name, field, pattern, label, enabled=True, account_name=None: "ok",
     )
-    result = runner.invoke(cli.app, ["rules-create", "r1", "subject", "invoice", "finance"])
+    result = runner.invoke(cli.app, ["--json", "rules-create", "r1", "subject", "invoice", "finance"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -163,7 +164,7 @@ def test_cli_rules_list_apply(monkeypatch):
 
 def test_cli_purge(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.purge_messages_impl", lambda account_name=None, label=None, older_than_days=None: "ok")
-    result = runner.invoke(cli.app, ["purge"])
+    result = runner.invoke(cli.app, ["--json", "purge"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -171,7 +172,7 @@ def test_cli_purge(monkeypatch):
 
 def test_cli_set_sync_enabled(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.set_sync_enabled_impl", lambda enabled, account: "ok")
-    result = runner.invoke(cli.app, ["set-sync-enabled", "true"])
+    result = runner.invoke(cli.app, ["--json", "set-sync-enabled", "true"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -181,7 +182,7 @@ def test_cli_sync(monkeypatch, tmp_path):
     monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
     monkeypatch.setattr("email_mcp.main._sync_mailbox", lambda *args, **kwargs: 1)
-    result = runner.invoke(cli.app, ["sync", "--mailbox", "INBOX", "--account", "a"])
+    result = runner.invoke(cli.app, ["--json", "sync", "--mailbox", "INBOX", "--account", "a"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -189,7 +190,7 @@ def test_cli_sync(monkeypatch, tmp_path):
 
 def test_cli_job_status(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.job_status_impl", lambda job_id: {"job_id": job_id})
-    result = runner.invoke(cli.app, ["job-status", "1"])
+    result = runner.invoke(cli.app, ["--json", "job-status", "1"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
@@ -199,7 +200,7 @@ def test_cli_unregister(monkeypatch, tmp_path):
     monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
     monkeypatch.setattr("email_mcp.cli.unregister_account", lambda settings, name, purge=False: {"removed": True})
-    result = runner.invoke(cli.app, ["unregister", "--purge", "name"])
+    result = runner.invoke(cli.app, ["--json", "unregister", "--purge", "name"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"

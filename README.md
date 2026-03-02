@@ -19,9 +19,10 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 PowerShell note: avoid angle-bracket placeholders like `<job_id>`; use a literal value, e.g. `email-mcp-cli job-status 123`.
 
 ## CLI Output
-1. CLI commands return JSON with a top-level `status` field.
-1. Set `EMAIL_MCP_DEBUG_ERRORS=true` to include error details in JSON output.
+1. Default CLI output is human-readable text.
+1. Use `--json` for structured JSON with a top-level `status` field.
 1. Use `--ndjson` to emit one JSON object per line (NDJSON).
+1. Set `EMAIL_MCP_DEBUG_ERRORS=true` to include error details in JSON output.
 
 ## Service Config
 1. `email-mcp-init` writes a local `config.json` under the data directory.
