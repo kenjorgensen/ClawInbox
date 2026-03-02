@@ -32,3 +32,7 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 - Define sync semantics (UID tracking, expunges, resync policies)
 - Define hybrid ranking strategy
 - Confirm embedding lifecycle (sync vs async)
+- Implement expunge detection and resync policies
+- Implement real OAuth provider integration
+- Add retention cleanup for vector store
+- Add integration tests for HTTP/auth and multi-account flows
