@@ -60,6 +60,7 @@ class ImapSync:
         mailbox: str,
         limit: int = 50,
         since_uid: int | None = None,
+        since_date: str | None = None,
         before_date: str | None = None,
     ) -> Iterable[ImapMessage]:
         client = self._client or self.connect()
@@ -67,6 +68,8 @@ class ImapSync:
         search_criteria = []
         if since_uid:
             search_criteria.extend(["UID", f"{since_uid + 1}:*"])
+        if since_date:
+            search_criteria.extend(["SINCE", since_date])
         if before_date:
             search_criteria.extend(["BEFORE", before_date])
         if not search_criteria:

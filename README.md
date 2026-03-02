@@ -31,6 +31,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 ## Multi-Account
 1. Pass `account_name` to tool calls.
 1. For sync, pass `account_name`, `imap_host`, `imap_user`, and `imap_password`.
+1. Optional date filtering: use `since_date` (required) and `before_date` (optional) in IMAP `DD-Mon-YYYY` format.
 
 ## MCP Tools (Current)
 - `list_mailboxes`

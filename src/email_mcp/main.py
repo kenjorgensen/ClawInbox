@@ -77,7 +77,12 @@ def _apply_overrides(
     return settings
 
 
-def _sync_mailbox(settings: Settings, mailbox: str, before_date: str | None = None) -> int:
+def _sync_mailbox(
+    settings: Settings,
+    mailbox: str,
+    since_date: str | None = None,
+    before_date: str | None = None,
+) -> int:
     imap = ImapSync(settings)
     engine = get_engine(_db_path(settings))
     account_id = None
@@ -94,7 +99,12 @@ def _sync_mailbox(settings: Settings, mailbox: str, before_date: str | None = No
         mailbox_row = get_or_create_mailbox(session, account.id, mailbox)
         last_uid = mailbox_row.last_uid or 0
         max_uid = last_uid
-        for message in imap.fetch_messages(mailbox, since_uid=last_uid, before_date=before_date):
+        for message in imap.fetch_messages(
+            mailbox,
+            since_uid=last_uid,
+            since_date=since_date,
+            before_date=before_date,
+        ):
             existing = session.exec(
                 select(Message).where(
                     Message.mailbox_id == mailbox_row.id,
@@ -196,6 +206,7 @@ def build_server():
         imap_host: str | None = None,
         imap_user: str | None = None,
         imap_password: str | None = None,
+        since_date: str | None = None,
         before_date: str | None = None,
     ) -> str:
         settings = Settings()
@@ -209,7 +220,7 @@ def build_server():
         settings.ensure_dirs()
         configure_logging(settings.log_level)
         migrate(_db_path(settings))
-        _sync_mailbox(settings, mailbox, before_date=before_date)
+        _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
         return f"Synced {mailbox}"
 
     from .mcp_tools.label_tools import register_label_tools
