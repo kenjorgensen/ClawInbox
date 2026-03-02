@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlmodel import Session, select
 
 from ..db.engine import get_engine
-from ..db.helpers import get_or_create_account
+from ..db.helpers import get_accounts, get_or_create_account
 from ..db.models import Message, Rule
 from ..normalize import NormalizedMessage
 from ..rules.rules_engine import apply_rules, load_rules
@@ -23,38 +23,59 @@ def register_rules_tools(app) -> None:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings, account_name=account_name)
-            rule = Rule(
-                account_id=account.id,
-                name=name,
-                field=field,
-                pattern=pattern,
-                label=label,
-                enabled=enabled,
-            )
-            session.add(rule)
+            accounts = get_accounts(session, account_name)
+            if not accounts:
+                account = get_or_create_account(session, settings, account_name=account_name)
+                accounts = [account]
+            created = 0
+            for account in accounts:
+                rule = Rule(
+                    account_id=account.id,
+                    name=name,
+                    field=field,
+                    pattern=pattern,
+                    label=label,
+                    enabled=enabled,
+                )
+                session.add(rule)
+                created += 1
             session.commit()
-        return f"Created rule {name}"
+        if account_name:
+            return f"Created rule {name}"
+        return f"Created rule {name} for {created} accounts"
 
     @app.tool()
     def list_rules(account_name: str | None = None) -> list[str]:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings, account_name=account_name)
-            rules = session.exec(select(Rule).where(Rule.account_id == account.id)).all()
-            return [rule.name for rule in rules]
+            accounts = get_accounts(session, account_name)
+            if not accounts:
+                account = get_or_create_account(session, settings, account_name=account_name)
+                accounts = [account]
+            names = []
+            for account in accounts:
+                rules = session.exec(select(Rule).where(Rule.account_id == account.id)).all()
+                for rule in rules:
+                    if account_name:
+                        names.append(rule.name)
+                    else:
+                        names.append(f"{account.name}:{rule.name}")
+            return names
 
     @app.tool()
     def apply_rules_to_message(message_id: int, account_name: str | None = None) -> list[str]:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings, account_name=account_name)
             message = session.exec(select(Message).where(Message.id == message_id)).first()
             if not message:
                 return []
-            rules = session.exec(select(Rule).where(Rule.account_id == account.id)).all()
+            account_id = message.account_id
+            if account_name:
+                account = get_or_create_account(session, settings, account_name=account_name)
+                account_id = account.id
+            rules = session.exec(select(Rule).where(Rule.account_id == account_id)).all()
             specs = load_rules(rules)
             normalized = NormalizedMessage(
                 subject=message.subject,

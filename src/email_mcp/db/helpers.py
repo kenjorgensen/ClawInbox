@@ -6,6 +6,13 @@ from .models import Account, Mailbox
 from ..settings import Settings
 
 
+def get_accounts(session: Session, account_name: str | None = None) -> list[Account]:
+    if account_name:
+        account = session.exec(select(Account).where(Account.name == account_name)).first()
+        return [account] if account else []
+    return session.exec(select(Account)).all()
+
+
 def get_or_create_account(
     session: Session,
     settings: Settings,

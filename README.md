@@ -29,9 +29,10 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. `EMAIL_MCP_AUTH_RESOURCE_SERVER_URL=...`
 
 ## Multi-Account
-1. Pass `account_name` to tool calls.
+1. Pass `account_name` to tool calls (optional). If omitted, operations apply across all accounts when supported.
 1. For sync, pass `account_name`, `imap_host`, `imap_user`, and `imap_password`.
 1. Optional date filtering: use `since_date` (required) and `before_date` (optional) in IMAP `DD-Mon-YYYY` format.
+1. Cross-account searches include an `account` field in results.
 
 ## MCP Tools (Current)
 - `list_mailboxes`
@@ -55,4 +56,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 - Iteration 1 (2026-03-02): `pytest` -> 2 passed.
 - Iteration 2 (2026-03-02): `pytest` -> 5 passed.
 - Iteration 3 (2026-03-02): `pytest` -> 6 passed.
-- Iteration 4 (2026-03-02): `pytest` -> 6 passed.
+- Iteration 4 (2026-03-02): `pytest` -> 11 passed.
+
+## Engineering Guide
+See `docs/engineering-guide.md` for general process and project-specific notes.

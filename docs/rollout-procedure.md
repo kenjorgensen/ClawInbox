@@ -48,3 +48,4 @@
 ## Documentation
 1. Update `docs/project-state.md` each iteration.
 1. Update README with new tools/config changes.
+1. Update `docs/engineering-guide.md` when process or project guidance changes.
