@@ -8,7 +8,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. Create a venv: `python -m venv .venv`
 1. Install deps: `.venv\\Scripts\\python -m pip install -e .[dev]`
 1. Optional vector deps: `.venv\\Scripts\\python -m pip install -e .[dev,vector]`
-1. Configure IMAP via env: `EMAIL_MCP_IMAP_HOST`, `EMAIL_MCP_IMAP_USER`, `EMAIL_MCP_IMAP_PASSWORD`
+1. Single-account default via env: `EMAIL_MCP_IMAP_HOST`, `EMAIL_MCP_IMAP_USER`, and the IMAP credential env.
 1. Run: `.venv\\Scripts\\python -m email_mcp.main`
 
 ## HTTP Transport
@@ -30,7 +30,8 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 
 ## Multi-Account
 1. Pass `account_name` to tool calls (optional). If omitted, operations apply across all accounts when supported.
-1. For sync, pass `account_name`, `imap_host`, `imap_user`, and `imap_password`.
+1. For sync, pass `account_name`, `imap_host`, and `imap_user` per account; provide credentials at runtime.
+1. Example: `sync_mailbox("INBOX", account_name="primary", imap_host="imap.gmail.com", imap_user="me@gmail.com")`
 1. Optional date filtering: use `since_date` (required) and `before_date` (optional) in IMAP `DD-Mon-YYYY` format.
 1. Cross-account searches include an `account` field in results.
 
