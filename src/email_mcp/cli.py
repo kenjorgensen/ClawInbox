@@ -60,11 +60,11 @@ def sync(
         from .main import _sync_mailbox, _apply_overrides
 
         _apply_overrides(settings, account_name=account)
-        _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
-        print(f"Synced {mailbox} for {account}")
+        job_id = _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
+        print(f"Synced {mailbox} for {account}. Job {job_id}.")
         return
-    count = sync_mailbox_across_accounts(mailbox, settings, since_date=since_date, before_date=before_date)
-    print(f"Synced {mailbox} for {count} accounts")
+    job_ids = sync_mailbox_across_accounts(mailbox, settings, since_date=since_date, before_date=before_date)
+    print(f"Synced {mailbox} for {len(job_ids)} accounts. Jobs: {job_ids}")
 
 
 @app.command("status")
@@ -101,6 +101,14 @@ def purge(account: str | None = None, label: str | None = None, older_than_days:
 def set_sync_enabled(enabled: bool, account: str | None = None) -> None:
     result = set_sync_enabled_impl(enabled, account)
     print(result)
+
+
+@app.command("job-status")
+def job_status(job_id: int) -> None:
+    from .mcp_tools.status_tools import job_status_impl
+
+    result = job_status_impl(job_id)
+    print(json.dumps(result, indent=2))
 
 
 def main() -> None:

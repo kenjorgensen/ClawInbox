@@ -57,3 +57,13 @@ class Rule(SQLModel, table=True):
     pattern: str
     label: str
     enabled: bool = True
+
+
+class Job(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    status: str = Field(index=True)
+    account_name: str | None = Field(default=None, index=True)
+    started_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    finished_at: datetime | None = Field(default=None, index=True)
+    message: str = Field(default="")

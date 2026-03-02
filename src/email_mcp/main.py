@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 from .db.engine import get_engine
 from .db.cleanup import delete_messages_by_uids
 from .db.helpers import get_accounts, get_or_create_account, get_or_create_mailbox
+from .db.jobs import create_job, update_job
 from .db.migrate import migrate
 from .db.models import Message
 from .imap_sync import ImapSync
@@ -113,11 +114,13 @@ def _sync_mailbox(
     last_count = 0
     removed_count = 0
     with Session(engine) as session:
+        job = create_job(session, "sync_mailbox", settings.account_name)
         account = get_or_create_account(session, settings)
         account_id = account.id
         if not account.sync_enabled:
+            update_job(session, job.id, "failed", "sync disabled")
             logger.info("Sync disabled for account %s", account.name)
-            return 0
+            return job.id or 0
         mailbox_row = get_or_create_mailbox(session, account.id, mailbox)
         last_uid = mailbox_row.last_uid or 0
         max_uid = last_uid
@@ -187,6 +190,7 @@ def _sync_mailbox(
         account.last_pull_status = last_status
         session.add(account)
         session.commit()
+        update_job(session, job.id, "done", f"count={last_count}")
     if settings.vector_enabled and vector_records:
         try:
             from .vector.embedder import Embedder
@@ -209,7 +213,7 @@ def _sync_mailbox(
     log_action("sync_mailbox", settings.account_name, "ok", {"mailbox": mailbox, "count": last_count})
     if removed_count:
         log_action("resync_missing", settings.account_name, "ok", {"removed": removed_count})
-    return 0
+    return job.id or 0
 
 
 def sync_mailbox_across_accounts(
@@ -217,16 +221,19 @@ def sync_mailbox_across_accounts(
     settings: Settings,
     since_date: str | None = None,
     before_date: str | None = None,
-) -> int:
+) -> list[int]:
     engine = get_engine(_db_path(settings))
     with Session(engine) as session:
         accounts = get_accounts(session, None)
+    job_ids: list[int] = []
     for account in accounts:
         account_settings = Settings()
         _apply_overrides(account_settings, account_name=account.name)
         account_settings.ensure_dirs()
-        _sync_mailbox(account_settings, mailbox, since_date=since_date, before_date=before_date)
-    return len(accounts)
+        job_id = _sync_mailbox(account_settings, mailbox, since_date=since_date, before_date=before_date)
+        if job_id:
+            job_ids.append(job_id)
+    return job_ids
 
 
 def _db_path(settings: Settings) -> Path:

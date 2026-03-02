@@ -60,3 +60,11 @@ def test_cli_set_sync_enabled(monkeypatch):
     monkeypatch.setattr("email_mcp.cli.set_sync_enabled_impl", lambda enabled, account: "ok")
     result = runner.invoke(cli.app, ["set-sync-enabled", "true"])
     assert result.exit_code == 0
+
+
+def test_cli_sync(monkeypatch, tmp_path):
+    monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.setattr("email_mcp.main._sync_mailbox", lambda *args, **kwargs: 1)
+    result = runner.invoke(cli.app, ["sync", "--mailbox", "INBOX", "--account", "a"])
+    assert result.exit_code == 0

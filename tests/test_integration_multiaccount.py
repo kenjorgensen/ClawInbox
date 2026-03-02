@@ -34,5 +34,5 @@ def test_sync_across_accounts(tmp_path: Path, monkeypatch):
 
     settings = Settings()
     settings.ensure_dirs()
-    count = sync_mailbox_across_accounts("INBOX", settings)
-    assert count == 2
+    job_ids = sync_mailbox_across_accounts("INBOX", settings)
+    assert len(job_ids) == 2

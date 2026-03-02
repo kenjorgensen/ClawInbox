@@ -83,6 +83,7 @@ Generated from pytest JSON report.
 | CLI | Cli Search | Yes |
 | CLI | Cli Set Sync Enabled | Yes |
 | CLI | Cli Status | Yes |
+| CLI | Cli Sync | Yes |
 | Database | Account Defaults | Yes |
 | Database | Db Roundtrip | Yes |
 | IMAP | Imap Connect Missing Settings | Yes |

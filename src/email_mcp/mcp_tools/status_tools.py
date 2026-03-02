@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 from ..db.engine import get_engine
 from ..db.helpers import get_accounts, get_or_create_account
 from ..db.models import Message
+from ..db.jobs import get_job
 from ..settings import Settings
 from ..access_log import log_action
 
@@ -58,6 +59,24 @@ def set_sync_enabled_impl(enabled: bool, account_name: str | None = None) -> str
     return f"Sync enabled set to {enabled} for {len(accounts)} accounts"
 
 
+def job_status_impl(job_id: int) -> dict:
+    settings = Settings()
+    engine = get_engine(settings.data_dir / "email.db")
+    with Session(engine) as session:
+        job = get_job(session, job_id)
+        if not job:
+            return {"status": "not_found", "job_id": job_id}
+        return {
+            "job_id": job.id,
+            "name": job.name,
+            "status": job.status,
+            "account_name": job.account_name,
+            "started_at": job.started_at.isoformat() if job.started_at else None,
+            "finished_at": job.finished_at.isoformat() if job.finished_at else None,
+            "message": job.message,
+        }
+
+
 def register_status_tools(app) -> None:
     @app.tool()
     def sync_status(account_name: str | None = None) -> dict:
@@ -66,3 +85,7 @@ def register_status_tools(app) -> None:
     @app.tool()
     def set_sync_enabled(enabled: bool, account_name: str | None = None) -> str:
         return set_sync_enabled_impl(enabled, account_name)
+
+    @app.tool()
+    def job_status(job_id: int) -> dict:
+        return job_status_impl(job_id)
