@@ -1,0 +1,2 @@
+# Enforce LF for text files; keep binaries untouched.
+* text=auto eol=lf

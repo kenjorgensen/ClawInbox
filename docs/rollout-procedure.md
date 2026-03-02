@@ -36,6 +36,7 @@
 1. Store any sample data in `data/` or `cache/` which are ignored.
 1. Run a secrets scan before each release (e.g., `git ls-files | rg -n \"(password|token|secret|api[_-]?key)\"`).
 1. If sensitive data is discovered, rotate credentials and scrub git history before continuing.
+1. Enable the local pre-commit hook in `.git/hooks/pre-commit` to block obvious secrets.
 
 ## Release Tags
 1. Tag after each iteration merge:
