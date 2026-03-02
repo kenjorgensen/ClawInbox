@@ -1,6 +1,7 @@
 # Engineering Guide
 
 ## General Process
+1. Configure secret scanning (gitleaks) before active development.
 1. Define scope and milestones in a plan document.
 1. Work in small, reviewable iterations with clear deliverables.
 1. Use a virtual environment (`.venv`) for dependency isolation.

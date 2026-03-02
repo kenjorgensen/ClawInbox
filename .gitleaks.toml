@@ -1,0 +1,12 @@
+title = "ClawInbox Gitleaks Config"
+
+[allowlist]
+description = "Allow benign variable names in docs"
+regexes = [
+  '''(?i)(password|token|secret)''',
+]
+paths = [
+  "README.md",
+  "docs/",
+  "Plan.md",
+]
