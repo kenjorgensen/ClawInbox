@@ -53,10 +53,21 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 - `set_sync_enabled`
 
 ## Test Results
-- Iteration 1 (2026-03-02): `pytest` -> 2 passed.
-- Iteration 2 (2026-03-02): `pytest` -> 5 passed.
-- Iteration 3 (2026-03-02): `pytest` -> 6 passed.
-- Iteration 4 (2026-03-02): `pytest` -> 11 passed.
+Generated from pytest JSON report.
+
+| Category | Test | Pass? |
+| --- | --- | --- |
+| db | test_db_roundtrip | Yes |
+| fts | test_fts_search | Yes |
+| hybrid | test_hybrid_rank_combines | Yes |
+| imap_errors | test_imap_connect_missing_settings | Yes |
+| normalize | test_normalize_plain_text | Yes |
+| normalize_property | test_normalize_property | Yes |
+| purge | test_purge_messages | Yes |
+| rules | test_rules_apply | Yes |
+| settings_dirs | test_settings_ensure_dirs | Yes |
+| status_tools | test_sync_status_all_accounts | Yes |
+| store | test_store_message | Yes |
 
 ## Engineering Guide
 See `docs/engineering-guide.md` for general process and project-specific notes.
