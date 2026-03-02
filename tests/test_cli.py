@@ -8,6 +8,15 @@ from email_mcp import cli
 runner = CliRunner()
 
 
+def test_cli_disabled_by_config(monkeypatch, tmp_path):
+    monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
+    config_path = tmp_path / "config.json"
+    config_path.write_text('{"cli_enabled": false, "mcp_enabled": true}', encoding="utf-8")
+    result = runner.invoke(cli.app, ["status"])
+    assert result.exit_code == 2
+
+
 def test_cli_init_db(monkeypatch, tmp_path):
     monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))

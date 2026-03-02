@@ -103,6 +103,7 @@ Generated from pytest JSON report.
 <!-- TEST_TABLE_START -->
 | Category | Test | Pass? |
 | --- | --- | --- |
+| CLI | Cli Disabled By Config | Yes |
 | CLI | Cli Init Db | Yes |
 | CLI | Cli Job Status | Yes |
 | CLI | Cli Label Apply Remove | Yes |
@@ -137,6 +138,7 @@ Generated from pytest JSON report.
 | Maintenance | Purge Messages No Label Match | Yes |
 | Normalization | Normalize Plain Text | Yes |
 | Normalization | Normalize Property | Yes |
+| Other | List Mailboxes Impl Single Account | Yes |
 | Other | Parse Accounts From Prefixed Env With Custom Name And Port | Yes |
 | Other | Parse Accounts From Prefixed Env With Multi Prefix | Yes |
 | Rules | Rules Apply | Yes |
@@ -148,6 +150,7 @@ Generated from pytest JSON report.
 | Settings | Settings Resolved Store Dir | Yes |
 | Status | Set Sync Enabled All Accounts | Yes |
 | Status | Sync Status All Accounts | Yes |
+| Status | Unregister Account Tool | Yes |
 | Storage | Store Message | Yes |
 | Storage | Store Sanitizes Names | Yes |
 <!-- TEST_TABLE_END -->

@@ -6,6 +6,7 @@ from email_mcp.db.engine import get_engine
 from email_mcp.db.migrate import migrate
 from email_mcp.db.models import Account, Mailbox, Message
 from email_mcp.mcp_tools.status_tools import register_status_tools
+from email_mcp.mcp_tools.maintenance_tools import register_maintenance_tools
 
 
 class DummyApp:
@@ -65,3 +66,13 @@ def test_set_sync_enabled_all_accounts(tmp_path, monkeypatch):
     register_status_tools(app)
     result = app.tools["set_sync_enabled"](False)
     assert "2 accounts" in result["result"]
+
+
+def test_unregister_account_tool(monkeypatch, tmp_path):
+    monkeypatch.setenv("EMAIL_MCP_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("EMAIL_MCP_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.setattr("email_mcp.mcp_tools.maintenance_tools.unregister_account", lambda settings, name, purge=False: {"removed": True})
+    app = DummyApp()
+    register_maintenance_tools(app)
+    result = app.tools["unregister_account_tool"]("primary", purge=True)
+    assert result["status"] == "ok"
