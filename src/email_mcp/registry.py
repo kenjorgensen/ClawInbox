@@ -82,6 +82,15 @@ def register_accounts_from_env(settings: Settings) -> int:
             upsert_account(session, spec)
             if spec.credential_env:
                 credential = os.environ.get(spec.credential_env)
+                if credential is None:
+                    try:
+                        from dotenv import dotenv_values
+
+                        env_file = settings.model_config.get("env_file", ".env")
+                        env_values = dotenv_values(env_file)
+                        credential = env_values.get(spec.credential_env)
+                    except Exception:
+                        credential = None
                 if credential:
                     store_credential(spec.name, credential)
             count += 1
