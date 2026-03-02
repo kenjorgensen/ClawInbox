@@ -6,4 +6,5 @@
 1. Add account registry via env JSON and OS keyring credential storage.
 1. Add access logging for action and result auditing.
 1. Add CLI command to register/list accounts and credential status.
+1. Add integration tests for auth config and multi-account flows.
 1. Tag release: `v0.5-iter5`.

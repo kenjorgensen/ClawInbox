@@ -35,6 +35,7 @@ def purge_messages_internal(
             account = get_or_create_account(session, settings, account_name=account_name)
             accounts = [account]
         count = 0
+        vector_ids: list[str] = []
         for account in accounts:
             statement = select(Message).where(Message.account_id == account.id)
             if cutoff is not None:
@@ -56,9 +57,20 @@ def purge_messages_internal(
             for message in messages:
                 if message.stored_path:
                     _delete_file(message.stored_path)
+                if message.id is not None:
+                    vector_ids.append(str(message.id))
                 session.delete(message)
                 count += 1
         session.commit()
+    if settings.vector_enabled and vector_ids:
+        try:
+            from ..vector.chroma_store import ChromaStore
+
+            store = ChromaStore(settings.resolved_vector_dir)
+            store.delete(vector_ids)
+            log_action("vector_cleanup", account_name, "ok", {"count": len(vector_ids)})
+        except Exception:
+            pass
     return count
 
 

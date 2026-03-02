@@ -31,4 +31,4 @@ def test_delete_messages_by_uids(tmp_path: Path):
     with Session(engine) as session:
         removed = delete_messages_by_uids(session, mailbox_id, [2])
         session.commit()
-        assert removed == 1
+        assert len(removed) == 1

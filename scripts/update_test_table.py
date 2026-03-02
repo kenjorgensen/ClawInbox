@@ -10,6 +10,8 @@ CATEGORY_MAP = {
     "test_fts.py": "Search",
     "test_hybrid.py": "Search",
     "test_imap_errors.py": "IMAP",
+    "test_integration_auth.py": "Integration",
+    "test_integration_multiaccount.py": "Integration",
     "test_normalize.py": "Normalization",
     "test_normalize_property.py": "Normalization",
     "test_purge.py": "Maintenance",

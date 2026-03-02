@@ -78,6 +78,9 @@ Generated from pytest JSON report.
 | Database | Db Roundtrip | Yes |
 | IMAP | Imap Connect Missing Settings | Yes |
 | IMAP | Imap Fetch Builds Criteria | Yes |
+| Integration | Build Server Bearer | Yes |
+| Integration | Build Server Oauth | Yes |
+| Integration | Sync Across Accounts | Yes |
 | Maintenance | Delete Messages By Uids | Yes |
 | Maintenance | Purge Messages | Yes |
 | Maintenance | Purge Messages No Label Match | Yes |

@@ -169,8 +169,18 @@ def _sync_mailbox(
             ]
             missing = [uid for uid in local_uids if uid not in server_uids]
             if missing:
-                removed_count = delete_messages_by_uids(session, mailbox_row.id, missing)
+                removed_ids = delete_messages_by_uids(session, mailbox_row.id, missing)
+                removed_count = len(removed_ids)
                 last_status = "resync_missing_removed"
+                if settings.vector_enabled and removed_ids:
+                    try:
+                        from .vector.chroma_store import ChromaStore
+
+                        store = ChromaStore(settings.resolved_vector_dir)
+                        store.delete(removed_ids)
+                        log_action("vector_cleanup", settings.account_name, "ok", {"count": len(removed_ids)})
+                    except Exception:
+                        pass
 
         account.last_pull_at = datetime.utcnow()
         account.last_pull_count = last_count
@@ -200,6 +210,23 @@ def _sync_mailbox(
     if removed_count:
         log_action("resync_missing", settings.account_name, "ok", {"removed": removed_count})
     return 0
+
+
+def sync_mailbox_across_accounts(
+    mailbox: str,
+    settings: Settings,
+    since_date: str | None = None,
+    before_date: str | None = None,
+) -> int:
+    engine = get_engine(_db_path(settings))
+    with Session(engine) as session:
+        accounts = get_accounts(session, None)
+    for account in accounts:
+        account_settings = Settings()
+        _apply_overrides(account_settings, account_name=account.name)
+        account_settings.ensure_dirs()
+        _sync_mailbox(account_settings, mailbox, since_date=since_date, before_date=before_date)
+    return len(accounts)
 
 
 def _db_path(settings: Settings) -> Path:
@@ -262,17 +289,8 @@ def build_server():
         if account_name:
             _sync_mailbox(settings, mailbox, since_date=since_date, before_date=before_date)
             return f"Synced {mailbox}"
-        engine = get_engine(_db_path(settings))
-        with Session(engine) as session:
-            accounts = get_accounts(session, None)
-        results = []
-        for account in accounts:
-            account_settings = Settings()
-            _apply_overrides(account_settings, account_name=account.name)
-            account_settings.ensure_dirs()
-            _sync_mailbox(account_settings, mailbox, since_date=since_date, before_date=before_date)
-            results.append(account.name)
-        return f"Synced {mailbox} for {len(results)} accounts"
+        count = sync_mailbox_across_accounts(mailbox, settings, since_date=since_date, before_date=before_date)
+        return f"Synced {mailbox} for {count} accounts"
 
     from .mcp_tools.label_tools import register_label_tools
     from .mcp_tools.maintenance_tools import register_maintenance_tools

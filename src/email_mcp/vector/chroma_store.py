@@ -24,3 +24,8 @@ class ChromaStore:
 
     def query(self, embedding: list[float], n_results: int = 10) -> dict:
         return self.collection.query(query_embeddings=[embedding], n_results=n_results)
+
+    def delete(self, ids: list[str]) -> None:
+        if not ids:
+            return
+        self.collection.delete(ids=ids)

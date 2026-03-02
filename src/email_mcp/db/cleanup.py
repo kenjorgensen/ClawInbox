@@ -5,14 +5,14 @@ from sqlmodel import Session, select
 from .models import Message, MessageLabel
 
 
-def delete_messages_by_uids(session: Session, mailbox_id: int, uids: list[int]) -> int:
+def delete_messages_by_uids(session: Session, mailbox_id: int, uids: list[int]) -> list[str]:
     if not uids:
-        return 0
+        return []
     messages = session.exec(
         select(Message).where(Message.mailbox_id == mailbox_id, Message.uid.in_(uids))
     ).all()
     if not messages:
-        return 0
+        return []
     message_ids = [msg.id for msg in messages if msg.id is not None]
     if message_ids:
         links = session.exec(select(MessageLabel).where(MessageLabel.message_id.in_(message_ids))).all()
@@ -27,4 +27,4 @@ def delete_messages_by_uids(session: Session, mailbox_id: int, uids: list[int]) 
             except Exception:
                 pass
         session.delete(msg)
-    return len(messages)
+    return [str(msg.id) for msg in messages if msg.id is not None]
