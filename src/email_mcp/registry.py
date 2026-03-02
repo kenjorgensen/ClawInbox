@@ -5,6 +5,7 @@ import os
 from dataclasses import dataclass
 
 import keyring
+from keyring.errors import NoKeyringError
 from sqlmodel import Session, select
 
 from .db.engine import get_engine
@@ -95,18 +96,26 @@ def _get_keyring_deleter():
 
 def store_credential(account_name: str, credential: str) -> None:
     setter = _get_keyring_setter()
-    setter(SERVICE_NAME, account_name, credential)
+    try:
+        setter(SERVICE_NAME, account_name, credential)
+    except NoKeyringError:
+        return
 
 
 def load_credential(account_name: str) -> str | None:
     getter = _get_keyring_getter()
-    return getter(SERVICE_NAME, account_name)
+    try:
+        return getter(SERVICE_NAME, account_name)
+    except NoKeyringError:
+        return None
 
 
 def delete_credential(account_name: str) -> None:
     deleter = _get_keyring_deleter()
     try:
         deleter(SERVICE_NAME, account_name)
+    except NoKeyringError:
+        return
     except Exception:
         pass
 
