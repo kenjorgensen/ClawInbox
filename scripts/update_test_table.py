@@ -6,6 +6,7 @@ from pathlib import Path
 
 CATEGORY_MAP = {
     "test_cleanup.py": "Maintenance",
+    "test_cli.py": "CLI",
     "test_db.py": "Database",
     "test_fts.py": "Search",
     "test_hybrid.py": "Search",

@@ -75,6 +75,14 @@ Generated from pytest JSON report.
 <!-- TEST_TABLE_START -->
 | Category | Test | Pass? |
 | --- | --- | --- |
+| CLI | Cli Init Db | Yes |
+| CLI | Cli Label Create | Yes |
+| CLI | Cli Purge | Yes |
+| CLI | Cli Register List | Yes |
+| CLI | Cli Rules Create | Yes |
+| CLI | Cli Search | Yes |
+| CLI | Cli Set Sync Enabled | Yes |
+| CLI | Cli Status | Yes |
 | Database | Account Defaults | Yes |
 | Database | Db Roundtrip | Yes |
 | IMAP | Imap Connect Missing Settings | Yes |
