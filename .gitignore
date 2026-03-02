@@ -9,15 +9,26 @@ dist/
 build/
 
 .env
+.env.*
 *.log
 *.eml
 email.db
 *.sqlite
 *.sqlite3
+*.token
+*.creds
+credentials.json
+secrets.json
 
 data/
 cache/
 .cache/
+data/vector/
+cache/vector/
+data/chroma/
+cache/chroma/
+data/chromadb/
+cache/chromadb/
 
 *.key
 *.pem

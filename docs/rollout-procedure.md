@@ -31,6 +31,12 @@
 1. Verify `.eml` files, local caches, and credentials are excluded via `.gitignore`.
 1. If any sensitive data is found, remove it from history before proceeding.
 
+## Proactive Security
+1. Use a local `.env` and never commit secrets or tokens.
+1. Store any sample data in `data/` or `cache/` which are ignored.
+1. Run a secrets scan before each release (e.g., `git ls-files | rg -n \"(password|token|secret|api[_-]?key)\"`).
+1. If sensitive data is discovered, rotate credentials and scrub git history before continuing.
+
 ## Release Tags
 1. Tag after each iteration merge:
    - `v0.1-iter1`
