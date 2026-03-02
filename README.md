@@ -42,6 +42,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. Disable automatic registration with `EMAIL_MCP_REGISTER_ACCOUNTS=false`.
 1. Credentials are stored in the OS keyring and loaded at runtime.
 1. CLI: `email-mcp-init` (init DB), `email-mcp-register` (register from env), `email-mcp-list` (list accounts + credential status).
+1. Full CLI entrypoint: `email-mcp-cli` (run `email-mcp-cli --help` for subcommands).
 
 Example JSON (single line):
 `[{"name":"primary","host":"imap.gmail.com","user":"me@gmail.com","credential_env":"EMAIL_MCP_CRED_PRIMARY"}]`
