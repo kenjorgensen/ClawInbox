@@ -47,8 +47,11 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 - `list_rules`
 - `apply_rules_to_message`
 - `purge_messages`
+- `sync_status`
+- `set_sync_enabled`
 
 ## Test Results
 - Iteration 1 (2026-03-02): `pytest` -> 2 passed.
 - Iteration 2 (2026-03-02): `pytest` -> 5 passed.
 - Iteration 3 (2026-03-02): `pytest` -> 6 passed.
+- Iteration 4 (2026-03-02): `pytest` -> 6 passed.

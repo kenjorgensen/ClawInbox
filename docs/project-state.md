@@ -18,7 +18,7 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 
 ## Deliverables
 - Plan: `Plan.md`
-- Rollout iterations: `docs/rollout-iteration-1.md`, `docs/rollout-iteration-2.md`, `docs/rollout-iteration-3.md`
+- Rollout iterations: `docs/rollout-iteration-1.md`, `docs/rollout-iteration-2.md`, `docs/rollout-iteration-3.md`, `docs/rollout-iteration-4.md`
 - README: `README.md` (beta warning and quick start)
 
 ## Decisions

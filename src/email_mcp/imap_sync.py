@@ -55,13 +55,23 @@ class ImapSync:
             mailboxes.append(name)
         return mailboxes
 
-    def fetch_messages(self, mailbox: str, limit: int = 50, since_uid: int | None = None) -> Iterable[ImapMessage]:
+    def fetch_messages(
+        self,
+        mailbox: str,
+        limit: int = 50,
+        since_uid: int | None = None,
+        before_date: str | None = None,
+    ) -> Iterable[ImapMessage]:
         client = self._client or self.connect()
         client.select_folder(mailbox, readonly=True)
+        search_criteria = []
         if since_uid:
-            uids = client.search(["UID", f"{since_uid + 1}:*"])
-        else:
-            uids = client.search("ALL")
+            search_criteria.extend(["UID", f"{since_uid + 1}:*"])
+        if before_date:
+            search_criteria.extend(["BEFORE", before_date])
+        if not search_criteria:
+            search_criteria = ["ALL"]
+        uids = client.search(search_criteria)
         uids = uids[-limit:]
         if not uids:
             return []

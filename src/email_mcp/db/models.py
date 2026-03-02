@@ -10,6 +10,10 @@ class Account(SQLModel, table=True):
     name: str = Field(index=True, unique=True)
     imap_host: str
     imap_user: str
+    sync_enabled: bool = Field(default=True, index=True)
+    last_pull_at: datetime | None = Field(default=None, index=True)
+    last_pull_count: int = Field(default=0)
+    last_pull_status: str = Field(default="")
 
 
 class Mailbox(SQLModel, table=True):

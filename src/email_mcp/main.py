@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import time
+from datetime import datetime
 
 from sqlmodel import Session, select
 
@@ -76,19 +77,24 @@ def _apply_overrides(
     return settings
 
 
-def _sync_mailbox(settings: Settings, mailbox: str) -> int:
+def _sync_mailbox(settings: Settings, mailbox: str, before_date: str | None = None) -> int:
     imap = ImapSync(settings)
     engine = get_engine(_db_path(settings))
     account_id = None
     vector_records: list[tuple[str, str]] = []
     start = time.monotonic()
+    last_status = "ok"
+    last_count = 0
     with Session(engine) as session:
         account = get_or_create_account(session, settings)
         account_id = account.id
+        if not account.sync_enabled:
+            logger.info("Sync disabled for account %s", account.name)
+            return 0
         mailbox_row = get_or_create_mailbox(session, account.id, mailbox)
         last_uid = mailbox_row.last_uid or 0
         max_uid = last_uid
-        for message in imap.fetch_messages(mailbox, since_uid=last_uid):
+        for message in imap.fetch_messages(mailbox, since_uid=last_uid, before_date=before_date):
             existing = session.exec(
                 select(Message).where(
                     Message.mailbox_id == mailbox_row.id,
@@ -116,9 +122,14 @@ def _sync_mailbox(settings: Settings, mailbox: str) -> int:
                 vector_records.append((str(row.id), normalized.text))
             if message.uid > max_uid:
                 max_uid = message.uid
+            last_count += 1
         if max_uid != last_uid:
             mailbox_row.last_uid = max_uid
             session.add(mailbox_row)
+        account.last_pull_at = datetime.utcnow()
+        account.last_pull_count = last_count
+        account.last_pull_status = last_status
+        session.add(account)
         session.commit()
     if settings.vector_enabled and vector_records:
         try:
@@ -185,6 +196,7 @@ def build_server():
         imap_host: str | None = None,
         imap_user: str | None = None,
         imap_password: str | None = None,
+        before_date: str | None = None,
     ) -> str:
         settings = Settings()
         _apply_overrides(
@@ -197,18 +209,20 @@ def build_server():
         settings.ensure_dirs()
         configure_logging(settings.log_level)
         migrate(_db_path(settings))
-        _sync_mailbox(settings, mailbox)
+        _sync_mailbox(settings, mailbox, before_date=before_date)
         return f"Synced {mailbox}"
 
     from .mcp_tools.label_tools import register_label_tools
     from .mcp_tools.maintenance_tools import register_maintenance_tools
     from .mcp_tools.rules_tools import register_rules_tools
     from .mcp_tools.search_tools import register_search_tools
+    from .mcp_tools.status_tools import register_status_tools
 
     register_label_tools(app)
     register_maintenance_tools(app)
     register_rules_tools(app)
     register_search_tools(app)
+    register_status_tools(app)
 
     return app
 
