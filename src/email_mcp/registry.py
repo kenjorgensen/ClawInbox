@@ -8,6 +8,7 @@ import keyring
 from sqlmodel import Session, select
 
 from .db.engine import get_engine
+from .db.migrate import migrate
 from .db.models import Account
 from .logging import get_logger
 from .settings import Settings
@@ -64,6 +65,7 @@ def register_accounts_from_env(settings: Settings) -> int:
         return 0
     if not settings.accounts_json:
         return 0
+    migrate(settings.data_dir / "email.db")
     data = json.loads(settings.accounts_json)
     if not isinstance(data, list):
         raise ValueError("EMAIL_MCP_ACCOUNTS_JSON must be a JSON list.")
@@ -88,6 +90,7 @@ def register_accounts_from_env(settings: Settings) -> int:
 
 
 def list_registered_accounts(settings: Settings) -> list[dict]:
+    migrate(settings.data_dir / "email.db")
     engine = get_engine(settings.data_dir / "email.db")
     results = []
     with Session(engine) as session:
