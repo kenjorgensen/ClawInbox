@@ -39,6 +39,9 @@ This is designed to integrate into OpenClaw as an MCP tool provider (typically w
 ### Environment
 - Use a Python virtual environment (`.venv`) for installing dependencies.
 
+### Security
+- Use gitleaks in CI for secret scanning.
+
 ### Vector search
 Pick one (start with Chroma for simplest local persistence):
 - `chromadb`
