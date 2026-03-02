@@ -34,6 +34,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. Example: `sync_mailbox("INBOX", account_name="primary", imap_host="imap.gmail.com", imap_user="me@gmail.com")`
 1. Optional date filtering: use `since_date` (required) and `before_date` (optional) in IMAP `DD-Mon-YYYY` format.
 1. Cross-account searches include an `account` field in results.
+1. Optional resync cleanup: set `EMAIL_MCP_RESYNC_MISSING=true` to remove local messages that no longer exist on the server.
 
 ## Account Registry
 1. Register accounts from env JSON by setting `EMAIL_MCP_ACCOUNTS_JSON`.
@@ -77,6 +78,7 @@ Generated from pytest JSON report.
 | Database | Db Roundtrip | Yes |
 | IMAP | Imap Connect Missing Settings | Yes |
 | IMAP | Imap Fetch Builds Criteria | Yes |
+| Maintenance | Delete Messages By Uids | Yes |
 | Maintenance | Purge Messages | Yes |
 | Maintenance | Purge Messages No Label Match | Yes |
 | Normalization | Normalize Plain Text | Yes |

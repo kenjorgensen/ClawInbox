@@ -7,6 +7,7 @@ from datetime import datetime
 from sqlmodel import Session, select
 
 from .db.engine import get_engine
+from .db.cleanup import delete_messages_by_uids
 from .db.helpers import get_accounts, get_or_create_account, get_or_create_mailbox
 from .db.migrate import migrate
 from .db.models import Message
@@ -110,6 +111,7 @@ def _sync_mailbox(
     start = time.monotonic()
     last_status = "ok"
     last_count = 0
+    removed_count = 0
     with Session(engine) as session:
         account = get_or_create_account(session, settings)
         account_id = account.id
@@ -156,6 +158,20 @@ def _sync_mailbox(
         if max_uid != last_uid:
             mailbox_row.last_uid = max_uid
             session.add(mailbox_row)
+
+        if settings.resync_missing:
+            server_uids = set(imap.list_uids(mailbox))
+            local_uids = [
+                uid
+                for (uid,) in session.exec(
+                    select(Message.uid).where(Message.mailbox_id == mailbox_row.id)
+                ).all()
+            ]
+            missing = [uid for uid in local_uids if uid not in server_uids]
+            if missing:
+                removed_count = delete_messages_by_uids(session, mailbox_row.id, missing)
+                last_status = "resync_missing_removed"
+
         account.last_pull_at = datetime.utcnow()
         account.last_pull_count = last_count
         account.last_pull_status = last_status
@@ -181,6 +197,8 @@ def _sync_mailbox(
         time.monotonic() - start,
     )
     log_action("sync_mailbox", settings.account_name, "ok", {"mailbox": mailbox, "count": last_count})
+    if removed_count:
+        log_action("resync_missing", settings.account_name, "ok", {"removed": removed_count})
     return 0
 
 

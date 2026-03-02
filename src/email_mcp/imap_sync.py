@@ -55,6 +55,11 @@ class ImapSync:
             mailboxes.append(name)
         return mailboxes
 
+    def list_uids(self, mailbox: str) -> list[int]:
+        client = self._client or self.connect()
+        client.select_folder(mailbox, readonly=True)
+        return [int(uid) for uid in client.search("ALL")]
+
     def fetch_messages(
         self,
         mailbox: str,

@@ -18,6 +18,7 @@ Email MCP server with hybrid search, labels, rules, and security tiers.
 - Added cross-account operations when `account_name` is omitted.
 - Added account registry from env JSON and OS keyring credential storage.
 - Added access log for actions and results.
+- Added optional resync cleanup to remove local messages missing on server.
 
 ## Deliverables
 - Plan: `Plan.md`
