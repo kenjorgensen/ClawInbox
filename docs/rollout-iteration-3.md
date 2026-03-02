@@ -5,4 +5,5 @@
 1. Add data retention and purge: remove cached bodies/embeddings by label or date range.
 1. Add observability: structured logs for sync, indexing, search latency, and errors.
 1. Improve resiliency: retry/backoff, timeouts, and safe cancellation.
+1. Update documentation for HTTP/auth/multi-account usage in README.
 1. Final test pass: integration tests for sync + search + labels + rules.

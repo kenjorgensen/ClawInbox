@@ -6,14 +6,29 @@ from .models import Account, Mailbox
 from ..settings import Settings
 
 
-def get_or_create_account(session: Session, settings: Settings) -> Account:
-    existing = session.exec(select(Account).where(Account.name == settings.account_name)).first()
+def get_or_create_account(
+    session: Session,
+    settings: Settings,
+    account_name: str | None = None,
+    imap_host: str | None = None,
+    imap_user: str | None = None,
+) -> Account:
+    name = account_name or settings.account_name
+    host = imap_host or settings.imap_host or ""
+    user = imap_user or settings.imap_user or ""
+    existing = session.exec(select(Account).where(Account.name == name)).first()
     if existing:
+        if host and existing.imap_host != host:
+            existing.imap_host = host
+        if user and existing.imap_user != user:
+            existing.imap_user = user
+        session.add(existing)
+        session.commit()
         return existing
     account = Account(
-        name=settings.account_name,
-        imap_host=settings.imap_host or "",
-        imap_user=settings.imap_user or "",
+        name=name,
+        imap_host=host,
+        imap_user=user,
     )
     session.add(account)
     session.commit()

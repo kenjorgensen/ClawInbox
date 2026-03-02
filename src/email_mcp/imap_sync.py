@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterable
+import time
 
 from imapclient import IMAPClient
 
@@ -25,10 +26,19 @@ class ImapSync:
     def connect(self) -> IMAPClient:
         if not self.settings.imap_host or not self.settings.imap_user:
             raise ValueError("IMAP host and user must be configured.")
-        client = IMAPClient(self.settings.imap_host, port=self.settings.imap_port, ssl=self.settings.imap_ssl)
-        client.login(self.settings.imap_user, self.settings.imap_password or "")
-        self._client = client
-        return client
+        attempts = self.settings.imap_retry_count
+        last_error: Exception | None = None
+        for attempt in range(1, attempts + 1):
+            try:
+                client = IMAPClient(self.settings.imap_host, port=self.settings.imap_port, ssl=self.settings.imap_ssl)
+                client.login(self.settings.imap_user, self.settings.imap_password or "")
+                self._client = client
+                return client
+            except Exception as exc:  # pragma: no cover - depends on network
+                last_error = exc
+                logger.warning("IMAP connect failed (attempt %s/%s): %s", attempt, attempts, exc)
+                time.sleep(self.settings.imap_retry_delay_seconds)
+        raise RuntimeError("IMAP connection failed after retries.") from last_error
 
     def disconnect(self) -> None:
         if self._client is not None:
@@ -45,10 +55,14 @@ class ImapSync:
             mailboxes.append(name)
         return mailboxes
 
-    def fetch_messages(self, mailbox: str, limit: int = 50) -> Iterable[ImapMessage]:
+    def fetch_messages(self, mailbox: str, limit: int = 50, since_uid: int | None = None) -> Iterable[ImapMessage]:
         client = self._client or self.connect()
         client.select_folder(mailbox, readonly=True)
-        uids = client.search("ALL")[-limit:]
+        if since_uid:
+            uids = client.search(["UID", f"{since_uid + 1}:*"])
+        else:
+            uids = client.search("ALL")
+        uids = uids[-limit:]
         if not uids:
             return []
         fetched = client.fetch(uids, ["RFC822"])

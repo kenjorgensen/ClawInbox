@@ -16,6 +16,7 @@ class Mailbox(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     account_id: int = Field(index=True, foreign_key="account.id")
     name: str = Field(index=True)
+    last_uid: int = Field(default=0, index=True)
 
 
 class Message(SQLModel, table=True):

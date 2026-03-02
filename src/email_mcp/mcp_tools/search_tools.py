@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from sqlmodel import Session, select
 
 from ..db.engine import get_engine
@@ -12,16 +14,21 @@ from ..db.queries import (
 )
 from ..settings import Settings
 from ..vector.hybrid import hybrid_rank
+from ..logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def register_search_tools(app) -> None:
     @app.tool()
-    def search_messages(query: str, limit: int = 20) -> list[dict]:
+    def search_messages(query: str, limit: int = 20, account_name: str | None = None) -> list[dict]:
+        start = time.monotonic()
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             results = search_messages_fts(session, account.id, query, limit=limit)
+            logger.info("search_messages took %.3fs (results=%s)", time.monotonic() - start, len(results))
             return [
                 {
                     "id": message.id,
@@ -34,12 +41,14 @@ def register_search_tools(app) -> None:
             ]
 
     @app.tool()
-    def search_messages_exact(from_addr: str) -> list[dict]:
+    def search_messages_exact(from_addr: str, account_name: str | None = None) -> list[dict]:
+        start = time.monotonic()
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             results = find_messages_exact_from(session, account.id, from_addr)
+            logger.info("search_messages_exact took %.3fs (results=%s)", time.monotonic() - start, len(results))
             return [
                 {
                     "id": message.id,
@@ -52,12 +61,14 @@ def register_search_tools(app) -> None:
             ]
 
     @app.tool()
-    def search_messages_by_label(label: str) -> list[dict]:
+    def search_messages_by_label(label: str, account_name: str | None = None) -> list[dict]:
+        start = time.monotonic()
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             results = find_messages_by_label(session, account.id, label)
+            logger.info("search_messages_by_label took %.3fs (results=%s)", time.monotonic() - start, len(results))
             return [
                 {
                     "id": message.id,
@@ -70,11 +81,17 @@ def register_search_tools(app) -> None:
             ]
 
     @app.tool()
-    def search_messages_hybrid(query: str, limit: int = 20, vector_limit: int = 10) -> list[dict]:
+    def search_messages_hybrid(
+        query: str,
+        limit: int = 20,
+        vector_limit: int = 10,
+        account_name: str | None = None,
+    ) -> list[dict]:
+        start = time.monotonic()
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             fts_results = search_messages_fts(session, account.id, query, limit=limit)
             if not settings.vector_enabled:
                 results = fts_results
@@ -98,6 +115,7 @@ def register_search_tools(app) -> None:
                     if msg_id in message_map
                 ]
                 results = hybrid_rank(fts_results, vector_results, limit=limit)
+            logger.info("search_messages_hybrid took %.3fs (results=%s)", time.monotonic() - start, len(results))
             return [
                 {
                     "id": message.id,

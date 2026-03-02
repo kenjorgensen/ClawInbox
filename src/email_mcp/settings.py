@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     imap_password: str | None = None
     imap_ssl: bool = True
     account_name: str = "default"
+    imap_retry_count: int = 3
+    imap_retry_delay_seconds: float = 1.0
 
     log_level: str = "INFO"
 
@@ -35,6 +37,16 @@ class Settings(BaseSettings):
     vector_backend: str = "chroma"
     vector_dir: Path | None = None
     embedding_model: str = "all-MiniLM-L6-v2"
+
+    transport: str = "stdio"
+    http_host: str = "127.0.0.1"
+    http_port: int = 8000
+
+    auth_mode: str = "none"
+    bearer_token: str | None = None
+    auth_issuer_url: str | None = None
+    auth_resource_server_url: str | None = None
+    auth_required_scopes: str | None = None
 
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)

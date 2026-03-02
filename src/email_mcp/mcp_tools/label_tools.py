@@ -10,11 +10,11 @@ from ..settings import Settings
 
 def register_label_tools(app) -> None:
     @app.tool()
-    def create_label(name: str) -> str:
+    def create_label(name: str, account_name: str | None = None) -> str:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             existing = session.exec(
                 select(Label).where(Label.account_id == account.id, Label.name == name)
             ).first()
@@ -26,20 +26,20 @@ def register_label_tools(app) -> None:
         return f"Created label {name}"
 
     @app.tool()
-    def list_labels() -> list[str]:
+    def list_labels(account_name: str | None = None) -> list[str]:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             labels = session.exec(select(Label).where(Label.account_id == account.id)).all()
             return [label.name for label in labels]
 
     @app.tool()
-    def apply_label(message_id: int, label_name: str) -> str:
+    def apply_label(message_id: int, label_name: str, account_name: str | None = None) -> str:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             label = session.exec(
                 select(Label).where(Label.account_id == account.id, Label.name == label_name)
             ).first()
@@ -61,11 +61,11 @@ def register_label_tools(app) -> None:
         return f"Applied label {label_name} to message {message_id}"
 
     @app.tool()
-    def remove_label(message_id: int, label_name: str) -> str:
+    def remove_label(message_id: int, label_name: str, account_name: str | None = None) -> str:
         settings = Settings()
         engine = get_engine(settings.data_dir / "email.db")
         with Session(engine) as session:
-            account = get_or_create_account(session, settings)
+            account = get_or_create_account(session, settings, account_name=account_name)
             label = session.exec(
                 select(Label).where(Label.account_id == account.id, Label.name == label_name)
             ).first()
