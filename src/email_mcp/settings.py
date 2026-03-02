@@ -16,7 +16,7 @@ def _default_cache_dir() -> Path:
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="EMAIL_MCP_", env_file=".env")
+    model_config = SettingsConfigDict(env_prefix="EMAIL_MCP_", env_file=".env", extra="ignore")
 
     data_dir: Path = Field(default_factory=_default_data_dir)
     cache_dir: Path = Field(default_factory=_default_cache_dir)
