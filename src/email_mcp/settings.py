@@ -31,12 +31,23 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
+    vector_enabled: bool = False
+    vector_backend: str = "chroma"
+    vector_dir: Path | None = None
+    embedding_model: str = "all-MiniLM-L6-v2"
+
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         store = self.store_dir or (self.data_dir / "eml")
         store.mkdir(parents=True, exist_ok=True)
+        vector_dir = self.vector_dir or (self.data_dir / "vector")
+        vector_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     def resolved_store_dir(self) -> Path:
         return self.store_dir or (self.data_dir / "eml")
+
+    @property
+    def resolved_vector_dir(self) -> Path:
+        return self.vector_dir or (self.data_dir / "vector")

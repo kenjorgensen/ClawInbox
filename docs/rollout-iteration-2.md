@@ -4,6 +4,7 @@
 1. Implement rules engine: regex rules schema and apply flow in `rules/rules_models.py` and `rules/rules_engine.py`.
 1. Add rule tools: manage rules and run classification in `mcp_tools/rules_tools.py`.
 1. Add vector search: embeddings wrapper and Chroma store in `vector/embedder.py` and `vector/chroma_store.py`.
+1. Add optional vector dependencies in `pyproject.toml`.
 1. Implement hybrid search: combine FTS + semantic results in `vector/hybrid.py`.
 1. Add search tools: `mcp_tools/search_tools.py` exposing hybrid/keyword/exact endpoints.
 1. Backfill embeddings on sync: update `imap_sync.py` to enqueue or process embeddings on new messages.

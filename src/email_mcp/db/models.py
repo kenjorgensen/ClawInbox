@@ -42,3 +42,13 @@ class MessageLabel(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     message_id: int = Field(index=True, foreign_key="message.id")
     label_id: int = Field(index=True, foreign_key="label.id")
+
+
+class Rule(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    account_id: int = Field(index=True, foreign_key="account.id")
+    name: str = Field(index=True)
+    field: str
+    pattern: str
+    label: str
+    enabled: bool = True

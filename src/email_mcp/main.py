@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from .db.engine import get_engine
+from .db.helpers import get_or_create_account, get_or_create_mailbox
 from .db.migrate import migrate
-from .db.models import Account, Mailbox, Message
+from .db.models import Message
 from .imap_sync import ImapSync
 from .logging import configure_logging, get_logger
 from .normalize import normalize_message
@@ -16,42 +17,15 @@ from .store import store_message
 logger = get_logger(__name__)
 
 
-def _get_or_create_account(session: Session, settings: Settings) -> Account:
-    existing = session.exec(select(Account).where(Account.name == settings.account_name)).first()
-    if existing:
-        return existing
-    account = Account(
-        name=settings.account_name,
-        imap_host=settings.imap_host or "",
-        imap_user=settings.imap_user or "",
-    )
-    session.add(account)
-    session.commit()
-    session.refresh(account)
-    return account
-
-
-def _get_or_create_mailbox(session: Session, account_id: int, mailbox: str) -> Mailbox:
-    existing = session.exec(
-        select(Mailbox).where(Mailbox.account_id == account_id, Mailbox.name == mailbox)
-    ).first()
-    if existing:
-        return existing
-    row = Mailbox(account_id=account_id, name=mailbox)
-    session.add(row)
-    session.commit()
-    session.refresh(row)
-    return row
-
-
 def _sync_mailbox(settings: Settings, mailbox: str) -> int:
     imap = ImapSync(settings)
     engine = get_engine(_db_path(settings))
     account_id = None
+    vector_records: list[tuple[str, str]] = []
     with Session(engine) as session:
-        account = _get_or_create_account(session, settings)
+        account = get_or_create_account(session, settings)
         account_id = account.id
-        mailbox_row = _get_or_create_mailbox(session, account.id, mailbox)
+        mailbox_row = get_or_create_mailbox(session, account.id, mailbox)
         for message in imap.fetch_messages(mailbox):
             normalized = normalize_message(message.raw)
             stored_path = store_message(settings.resolved_store_dir, settings.account_name, mailbox, message.uid, message.raw)
@@ -67,7 +41,22 @@ def _sync_mailbox(settings: Settings, mailbox: str) -> int:
                 stored_path=str(stored_path),
             )
             session.add(row)
+            session.flush()
+            if settings.vector_enabled and row.id is not None and normalized.text:
+                vector_records.append((str(row.id), normalized.text))
         session.commit()
+    if settings.vector_enabled and vector_records:
+        try:
+            from .vector.embedder import Embedder
+            from .vector.chroma_store import ChromaStore
+        except Exception as exc:  # pragma: no cover - optional dependency
+            raise RuntimeError("Vector search dependencies are not installed. Install with [vector].") from exc
+        embedder = Embedder(model_name=settings.embedding_model)
+        store = ChromaStore(settings.resolved_vector_dir)
+        ids = [item[0] for item in vector_records]
+        texts = [item[1] for item in vector_records]
+        embeddings = embedder.embed(texts)
+        store.upsert(ids=ids, embeddings=embeddings, metadatas=None, documents=texts)
     imap.disconnect()
     logger.info("Synced mailbox %s for account %s", mailbox, account_id)
     return 0
@@ -104,6 +93,14 @@ def build_server():
         migrate(_db_path(settings))
         _sync_mailbox(settings, mailbox)
         return f"Synced {mailbox}"
+
+    from .mcp_tools.label_tools import register_label_tools
+    from .mcp_tools.rules_tools import register_rules_tools
+    from .mcp_tools.search_tools import register_search_tools
+
+    register_label_tools(app)
+    register_rules_tools(app)
+    register_search_tools(app)
 
     return app
 

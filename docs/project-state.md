@@ -1,12 +1,17 @@
 # Project State
 
 ## Status
-- Phase: iteration 1 in progress
-- Current iteration: Iteration 1
+- Phase: iteration 2 in progress
+- Current iteration: Iteration 2
 - Last updated: 2026-03-02
 
 ## Scope
 Email MCP server with hybrid search, labels, rules, and security tiers.
+
+## Current Progress
+- Added FTS5 indexing and search queries.
+- Added labels and rules MCP tools.
+- Added hybrid ranking utilities and optional vector dependencies.
 
 ## Deliverables
 - Plan: `Plan.md`
