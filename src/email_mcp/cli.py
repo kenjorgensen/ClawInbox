@@ -26,6 +26,21 @@ def register_accounts() -> None:
     print(f"Registered {count} accounts.")
 
 
+@app.command("register-account")
+def register_account(
+    name: str,
+    host: str,
+    user: str,
+    credential: str,
+) -> None:
+    settings = Settings()
+    settings.ensure_dirs()
+    from .registry import register_account as register_single
+
+    register_single(settings, name=name, host=host, user=user, credential=credential)
+    print(f"Registered account {name}.")
+
+
 @app.command("list")
 def list_accounts() -> None:
     settings = Settings()

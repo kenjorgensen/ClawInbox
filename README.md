@@ -9,6 +9,7 @@ Email MCP server for syncing IMAP inboxes, normalizing message content, and enab
 1. Install deps: `.venv\\Scripts\\python -m pip install -e .[dev]`
 1. Optional vector deps: `.venv\\Scripts\\python -m pip install -e .[dev,vector]`
 1. Single-account default via env: `EMAIL_MCP_IMAP_HOST`, `EMAIL_MCP_IMAP_USER`, and the IMAP credential env.
+1. Register an account: `email-mcp-cli register-account --name <name> --host <host> --user <user> --credential <app_password>`
 1. Run: `.venv\\Scripts\\python -m email_mcp.main`
 
 ## HTTP Transport

@@ -115,3 +115,13 @@ def list_registered_accounts(settings: Settings) -> list[dict]:
                 }
             )
     return results
+
+
+def register_account(settings: Settings, name: str, host: str, user: str, credential: str) -> None:
+    engine = get_engine(settings.data_dir / "email.db")
+    with Session(engine) as session:
+        upsert_account(
+            session,
+            AccountSpec(name=name, imap_host=host, imap_user=user),
+        )
+    store_credential(name, credential)
