@@ -15,4 +15,5 @@
 1. Vector search is optional and requires the `vector` extra dependencies.
 1. Use the maintenance tool to purge stored messages and reduce local data footprint.
 1. Account registry can seed accounts from env JSON and stores credentials in the OS keyring.
+1. Use `email-mcp-register` and `email-mcp-list` to manage the registry from the CLI.
 1. Access log is written to `access.log` in the data directory for auditing.

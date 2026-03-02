@@ -27,6 +27,7 @@
 1. If tests are missing, add a TODO and create an issue.
 1. Include property-based tests for critical parsing/normalization code.
 1. Generate the README test table from pytest JSON output via `scripts/update_test_table.py`.
+1. Keep a manual live IMAP smoke test checklist up to date and run it before releases.
 
 ## Safety Check (PII)
 1. Before every commit, run a quick scan for secrets and personal data (email addresses, tokens, passwords).
@@ -50,3 +51,4 @@
 1. Update `docs/project-state.md` each iteration.
 1. Update README with new tools/config changes.
 1. Update `docs/engineering-guide.md` when process or project guidance changes.
+1. Update the live test checklist and account registry CLI documentation when behavior changes.

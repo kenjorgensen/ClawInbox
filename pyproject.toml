@@ -33,6 +33,8 @@ vector = [
 
 [project.scripts]
 email-mcp = "email_mcp.main:main"
+email-mcp-register = "email_mcp.cli:register_accounts"
+email-mcp-list = "email_mcp.cli:list_accounts"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

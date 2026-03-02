@@ -85,3 +85,21 @@ def register_accounts_from_env(settings: Settings) -> int:
             count += 1
     logger.info("Registered %s accounts from env", count)
     return count
+
+
+def list_registered_accounts(settings: Settings) -> list[dict]:
+    engine = get_engine(settings.data_dir / "email.db")
+    results = []
+    with Session(engine) as session:
+        for account in session.exec(select(Account)).all():
+            has_cred = bool(load_credential(account.name))
+            results.append(
+                {
+                    "name": account.name,
+                    "imap_host": account.imap_host,
+                    "imap_user": account.imap_user,
+                    "sync_enabled": account.sync_enabled,
+                    "has_credential": has_cred,
+                }
+            )
+    return results

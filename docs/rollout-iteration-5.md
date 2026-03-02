@@ -5,4 +5,5 @@
 1. Add a manual live IMAP smoke test checklist for multi-account pulls.
 1. Add account registry via env JSON and OS keyring credential storage.
 1. Add access logging for action and result auditing.
+1. Add CLI command to register/list accounts and credential status.
 1. Tag release: `v0.5-iter5`.
