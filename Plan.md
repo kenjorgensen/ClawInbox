@@ -36,6 +36,9 @@ This is designed to integrate into OpenClaw as an MCP tool provider (typically w
 - `keyring` (credential storage) + fallback plan if needed
 - `html2text` (HTML → plain text)
 
+### Environment
+- Use a Python virtual environment (`.venv`) for installing dependencies.
+
 ### Vector search
 Pick one (start with Chroma for simplest local persistence):
 - `chromadb`

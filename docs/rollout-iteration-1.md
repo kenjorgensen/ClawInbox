@@ -10,3 +10,5 @@
 1. Add local stdio auth mode: `auth/auth_none.py`.
 1. Add smoke tests: basic normalization tests and DB roundtrip.
 1. Provide dev scripts: `scripts/dev_run_stdio.sh`.
+1. Adopt rollout procedure: commits, testing, tagging, and docs updates in `docs/rollout-procedure.md`.
+1. Add README with beta warning, setup, configuration, and MCP tool usage.

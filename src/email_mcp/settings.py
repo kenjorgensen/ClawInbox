@@ -1,0 +1,42 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from platformdirs import user_cache_dir, user_data_dir
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _default_data_dir() -> Path:
+    return Path(user_data_dir("email-mcp", "ClawInbox"))
+
+
+def _default_cache_dir() -> Path:
+    return Path(user_cache_dir("email-mcp", "ClawInbox"))
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="EMAIL_MCP_", env_file=".env")
+
+    data_dir: Path = Field(default_factory=_default_data_dir)
+    cache_dir: Path = Field(default_factory=_default_cache_dir)
+    store_dir: Path | None = None
+
+    imap_host: str | None = None
+    imap_port: int = 993
+    imap_user: str | None = None
+    imap_password: str | None = None
+    imap_ssl: bool = True
+    account_name: str = "default"
+
+    log_level: str = "INFO"
+
+    def ensure_dirs(self) -> None:
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        store = self.store_dir or (self.data_dir / "eml")
+        store.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def resolved_store_dir(self) -> Path:
+        return self.store_dir or (self.data_dir / "eml")
